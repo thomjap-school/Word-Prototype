@@ -1,93 +1,104 @@
-# Groupe de pernou_e 1077499
+# Fiche Projet — Prototype Word
 
+*Éditeur de documents collaboratif*
 
+Version 1.0 — Durée du projet : 4 semaines
 
-## Getting started
+## Pourquoi
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### Problématique
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Aujourd'hui, pour rédiger, mettre en forme et collaborer sur des documents, nous dépendons d'outils tiers (Google Docs, Microsoft Word/365, Notion, etc.). Cela pose plusieurs limites : dépendance à des services externes, manque de maîtrise sur les données et le code, et impossibilité d'adapter l'outil à nos besoins spécifiques.
 
-## Add your files
+### Vision du projet
 
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+Construire Prototype Word : une application web permettant de créer, formater et co-éditer des documents en temps réel, sans dépendre d'un éditeur tiers, en maîtrisant de bout en bout l'authentification, le stockage et la collaboration.
 
-```
-cd existing_repo
-git remote add origin https://rendu-git.etna-alternance.net/module-10155/activity-55692/group-1077499.git
-git branch -M main
-git push -uf origin main
-```
+## Quoi
 
-## Integrate with your tools
+### Objectif principal
 
-* [Set up project integrations](https://rendu-git.etna-alternance.net/module-10155/activity-55692/group-1077499/-/settings/integrations)
+Développer en 4 semaines un MVP fonctionnel d'éditeur de texte en ligne avec gestion de comptes, sauvegarde des documents et édition collaborative en temps réel.
 
-## Collaborate with your team
+### Livrables
 
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+- Application web déployée et dockerisée (front + back + DB)
+- Système d'authentification (création de compte, connexion, JWT)
+- Éditeur de texte avec formatage (gras, italique, titres, listes, etc.)
+- Sauvegarde et gestion des documents liés à un compte utilisateur
+- Collaboration en temps réel sur un même document (Yjs)
+- Démo finale fonctionnelle
 
-## Test and Deploy
+### Périmètre (in-scope)
 
-Use the built-in continuous integration in GitLab.
+- Auth simple email/mot de passe avec JWT
+- Éditeur de texte riche basique (formatage standard)
+- Sauvegarde de documents en base PostgreSQL
+- Édition collaborative temps réel via Yjs
+- Dockerisation de l'ensemble de l'application
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Hors périmètre (out-of-scope)
 
-***
+- Export PDF/Word avancé ou mise en page complexe
+- Gestion fine des droits et permissions par document
+- Commentaires, suivi des modifications, historique de versions
+- Authentification OAuth (Google, Microsoft, etc.)
+- Déploiement en production sur un serveur public (hors ngrok pour les tests)
 
-# Editing this README
+### Critères de réussite
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- Un compte peut être créé, et l'utilisateur peut se connecter/déconnecter de façon sécurisée
+- Un document créé est sauvegardé et reste accessible après reconnexion
+- Deux utilisateurs peuvent éditer le même document en simultané et voir les modifications en temps réel
+- L'application tourne entièrement via Docker (un seul lancement, sans configuration manuelle)
+- La démo finale se déroule sans bug bloquant
 
-## Suggestions for a good README
+## Qui
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Projet réalisé en petite équipe (binôme/trinôme). Répartition des rôles à ajuster selon l'équipe :
 
-## Name
-Choose a self-explaining name for your project.
+| Acteur | Rôle | Responsabilités |
+|---|---|---|
+| Membre 1 | Backend / Auth | API, base de données, JWT, sécurité |
+| Membre 2 | Frontend / Éditeur | Interface, éditeur de texte, formatage |
+| Membre 3 (si applicable) | Collab temps réel / DevOps | Intégration Yjs, Docker, tests, démo |
+| Toute l'équipe | Pilotage | Planning, gestion des bugs |
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+## Comment
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+### Organisation
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- Travail en sprints hebdomadaires d'une semaine, avec un objectif clair par semaine
+- Gestion du code via un dépôt Git partagé (branches par fonctionnalité)
+- Suivi des tâches simple (Kanban : à faire / en cours / terminé)
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Stack technique envisagée
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+- Authentification : email/mot de passe, JWT
+- Base de données : PostgreSQL via Docker
+- Éditeur de texte : librairie d'édition riche (front)
+- Collaboration temps réel : Yjs
+- Tests entre membres de l'équipe : ngrok pour exposer un environnement local
+- Conteneurisation : Docker / Docker Compose pour l'ensemble de l'application
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+## Quand
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Jalons et échéances (4 semaines)
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+| Période | Objectifs |
+|---|---|
+| Semaine 1 | Authentification et gestion de comptes (email/mot de passe, JWT, base de données PostgreSQL via Docker) + mise en place du squelette de l'éditeur |
+| Semaine 2 | Éditeur complet : formatage du texte, sauvegarde des documents liés à un compte utilisateur |
+| Semaine 3 | Collaboration en temps réel avec Yjs, mise en place de ngrok pour les tests entre membres de l'équipe |
+| Semaine 4 | Finitions (polish), correction des bugs, dockerisation complète de l'application, préparation de la démo finale |
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Les risques
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+| Risque | Impact | Mitigation |
+|---|---|---|
+| La collaboration temps réel (Yjs) est plus complexe que prévu | Élevé | Commencer les tests Yjs tôt (dès la semaine 2 en parallèle), prévoir un fallback simple (sauvegarde périodique) si besoin |
+| Retard sur l'authentification en semaine 1 | Moyen | Garder l'auth volontairement simple (pas d'OAuth), réutiliser des briques éprouvées (JWT) |
+| Problèmes de dockerisation en fin de projet | Moyen | Dockeriser progressivement dès la semaine 1, ne pas tout reporter à la semaine 4 |
+| ngrok instable ou limité pour les tests collaboratifs | Faible | Prévoir un test en réseau local en secours |
+| Manque de temps / périmètre trop ambitieux | Élevé | Respecter strictement le hors-périmètre défini, prioriser les critères de réussite |
+| Disponibilité inégale des membres de l'équipe | Moyen | Répartition claire des rôles |
