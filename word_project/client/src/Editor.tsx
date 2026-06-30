@@ -22,11 +22,11 @@ function Editor() {
   }
 
   return (
-  <div className="max-w-3xl mx-auto mt-10 bg-white shadow-lg rounded-lg">
+  <div className="max-w-3xl mx-auto mt-10 bg-white shadow-lg rounded-lg overflow-hidden">
 
     <Toolbar editor={editor} />
 
-    <div className="p-8 min-h-[800px]">
+    <div className="p-8 min-h-[800px] bg-gray-50">
       <EditorContent
         editor={editor}
         className="tiptap prose max-w-none focus:outline-none"
