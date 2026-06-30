@@ -5,7 +5,9 @@ bcrypt==5.0.0
 cffi==2.0.0
 click==8.4.2
 cryptography==49.0.0
+dnspython==2.8.0
 ecdsa==0.19.2
+email-validator==2.3.0
 fastapi==0.138.2
 greenlet==3.5.3
 h11==0.16.0
@@ -13,6 +15,7 @@ httptools==0.8.0
 idna==3.18
 passlib==1.7.4
 pyasn1==0.6.3
+pycodestyle==2.14.0
 pycparser==3.0
 pydantic==2.13.4
 pydantic_core==2.46.4
@@ -30,4 +33,3 @@ uvicorn==0.49.0
 uvloop==0.22.1
 watchfiles==1.2.0
 websockets==16.0
-pycodestyle==2.10.0
