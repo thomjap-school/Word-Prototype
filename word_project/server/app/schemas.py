@@ -4,16 +4,19 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
+
 # Ce que le client envoie pour s'inscrire
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
     full_name: str | None = None
 
+
 # Ce que le client envoie pour se connecter
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
 
 # Ce que l'API renvoie (jamais le mot de passe !)
 class UserOut(BaseModel):
@@ -24,6 +27,7 @@ class UserOut(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 # Réponse contenant le token JWT
 class Token(BaseModel):
