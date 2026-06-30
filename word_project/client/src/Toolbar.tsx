@@ -9,12 +9,13 @@ export default function Toolbar({ editor }: Props) {
 
   const btnClass = (active: boolean) =>
     `px-2 py-1 rounded text-sm ${
-      active ? 'bg-black text-white' : 'bg-gray-200'
+      active ? 'bg-green-600 text-white' : 'bg-gray-200'
     }`
 
   return (
     <div className="flex gap-2 p-2 border-b bg-white">
 
+      {/* Bold */}
       <button
         className={btnClass(editor.isActive('bold'))}
         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -22,6 +23,7 @@ export default function Toolbar({ editor }: Props) {
         B
       </button>
 
+      {/* Italic */}
       <button
         className={btnClass(editor.isActive('italic'))}
         onClick={() => editor.chain().focus().toggleItalic().run()}
@@ -29,6 +31,7 @@ export default function Toolbar({ editor }: Props) {
         I
       </button>
 
+      {/* Underline */}
       <button
         className={btnClass(editor.isActive('underline'))}
         onClick={() => editor.chain().focus().toggleUnderline().run()}
@@ -36,6 +39,7 @@ export default function Toolbar({ editor }: Props) {
         U
       </button>
 
+      {/* H1 */}
       <button
         className={btnClass(editor.isActive('heading', { level: 1 }))}
         onClick={() =>
@@ -45,6 +49,7 @@ export default function Toolbar({ editor }: Props) {
         H1
       </button>
 
+      {/* H2 */}
       <button
         className={btnClass(editor.isActive('heading', { level: 2 }))}
         onClick={() =>
@@ -54,6 +59,7 @@ export default function Toolbar({ editor }: Props) {
         H2
       </button>
 
+      {/* List */}
       <button
         className={btnClass(editor.isActive('bulletList'))}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
