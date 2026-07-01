@@ -59,9 +59,9 @@ Projet réalisé en petite équipe (binôme/trinôme). Répartition des rôles :
 
 | Acteur | Rôle | Responsabilités |
 |---|---|---|
-| Membre 1 | Backend / Auth | API, base de données, JWT, sécurité |
-| Membre 2 , 3 | Frontend / Éditeur | Interface, éditeur de texte, formatage |
-| Membre 4 , 3 | Collab temps réel / DevOps | Intégration Yjs, Docker, tests, démo |
+| Thomas | Backend / Auth | API, base de données, JWT, sécurité |
+| Emanuel , Ewen | Frontend / Éditeur | Interface, éditeur de texte, formatage |
+| Jérémy , Ewen | Collab temps réel / DevOps | Intégration Yjs, Docker, tests, démo |
 | Toute l'équipe | Pilotage | Planning, gestion des bugs |
 
 ## Comment
@@ -70,7 +70,7 @@ Projet réalisé en petite équipe (binôme/trinôme). Répartition des rôles :
 
 - Travail en sprints hebdomadaires d'une semaine, avec un objectif clair par semaine
 - Gestion du code via un dépôt Git partagé (branches par fonctionnalité)
-- Suivi des tâches simple (Kanban : à faire / en cours / terminé)
+- Suivi des tâches simple (Kanban ou Notion : à faire / en cours / terminé)
 
 ### Stack technique envisagée
 
@@ -97,8 +97,6 @@ Projet réalisé en petite équipe (binôme/trinôme). Répartition des rôles :
 | Risque | Impact | Mitigation |
 |---|---|---|
 | La collaboration temps réel (Yjs) est plus complexe que prévu | Élevé | Commencer les tests Yjs tôt (dès la semaine 2 en parallèle), prévoir un fallback simple (sauvegarde périodique) si besoin |
-| Retard sur l'authentification en semaine 1 | Moyen | Garder l'auth volontairement simple (pas d'OAuth), réutiliser des briques éprouvées (JWT) |
 | Problèmes de dockerisation en fin de projet | Moyen | Dockeriser progressivement dès la semaine 1, ne pas tout reporter à la semaine 4 |
-| ngrok instable ou limité pour les tests collaboratifs | Faible | Prévoir un test en réseau local en secours |
 | Manque de temps / périmètre trop ambitieux | Élevé | Respecter strictement le hors-périmètre défini, prioriser les critères de réussite |
 | Disponibilité inégale des membres de l'équipe | Moyen | Répartition claire des rôles |
