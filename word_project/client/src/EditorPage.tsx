@@ -1,32 +1,21 @@
 import Editor from './Editor'
+import { FileText } from 'lucide-react'
 
 export default function EditorPage() {
-
-  const handleSave = () => {
-    console.log("Save clicked")
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
 
-      {/* HEADER */}
-      <div className="flex items-center justify-between px-6 py-3 bg-white border-b">
-        <div className="font-bold">Word Prototype</div>
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 px-8 h-14 flex items-center sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center">
+            <FileText size={14} className="text-white" />
+          </div>
+          <span className="text-sm font-medium text-gray-900">Word Prototype</span>
+        </div>
+      </header>
 
-        <input
-          className="text-gray-600 border-none outline-none bg-transparent text-center"
-          placeholder="Document sans titre"
-        />
-
-        <button
-          onClick={handleSave}
-          className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition"
-        >
-          Save
-        </button>
-      </div>
-
-      {/* EDITOR */}
+      {/* Editor */}
       <Editor />
 
     </div>
