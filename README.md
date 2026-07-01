@@ -87,10 +87,10 @@ Projet réalisé en petite équipe (binôme/trinôme). Répartition des rôles :
 
 | Période | Objectifs |
 |---|---|
-| Semaine 1 | Authentification et gestion de comptes (email/mot de passe, JWT, base de données PostgreSQL via Docker) + mise en place du squelette de l'éditeur |
+| Semaine 1 | Authentification et gestion de comptes (email/mot de passe, JWT, base de données PostgreSQL via Docker) dockerisation complète de l'application + mise en place du squelette de l'éditeur |
 | Semaine 2 | Éditeur complet : formatage du texte, sauvegarde des documents liés à un compte utilisateur |
 | Semaine 3 | Collaboration en temps réel avec Yjs, mise en place de ngrok pour les tests entre membres de l'équipe |
-| Semaine 4 | Finitions (polish), correction des bugs, dockerisation complète de l'application, préparation de la démo finale |
+| Semaine 4 | Finitions (polish), correction des bugs, préparation de la démo finale |
 
 ## Les risques
 
