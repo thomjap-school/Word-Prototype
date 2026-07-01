@@ -55,13 +55,13 @@ Développer en 4 semaines un MVP fonctionnel d'éditeur de texte en ligne avec g
 
 ## Qui
 
-Projet réalisé en petite équipe (binôme/trinôme). Répartition des rôles à ajuster selon l'équipe :
+Projet réalisé en petite équipe (binôme/trinôme). Répartition des rôles :
 
 | Acteur | Rôle | Responsabilités |
 |---|---|---|
 | Membre 1 | Backend / Auth | API, base de données, JWT, sécurité |
-| Membre 2 | Frontend / Éditeur | Interface, éditeur de texte, formatage |
-| Membre 3 (si applicable) | Collab temps réel / DevOps | Intégration Yjs, Docker, tests, démo |
+| Membre 2 , 3 | Frontend / Éditeur | Interface, éditeur de texte, formatage |
+| Membre 4 , 3 | Collab temps réel / DevOps | Intégration Yjs, Docker, tests, démo |
 | Toute l'équipe | Pilotage | Planning, gestion des bugs |
 
 ## Comment
