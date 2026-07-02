@@ -12,11 +12,14 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",
     "@tiptap/extension-placeholder": "^3.27.1",
+    "@tiptap/extension-text-align": "^3.27.1",
     "@tiptap/pm": "^3.27.1",
     "@tiptap/react": "^3.27.1",
     "@tiptap/starter-kit": "^3.27.1",
+    "lucide-react": "^1.22.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.1",
     "tailwindcss": "^4.3.2"
   },
   "devDependencies": {

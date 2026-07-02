@@ -1,10 +1,13 @@
-import Editor from './Editor'
+import { Routes, Route } from 'react-router-dom'
+import Home from './Home'
+import EditorPage from './EditorPage'
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 py-10">
-      <Editor />
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/editor" element={<EditorPage />} />
+    </Routes>
   )
 }
 
