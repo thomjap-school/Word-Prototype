@@ -71,6 +71,8 @@ Projet réalisé en petite équipe (binôme/trinôme). Répartition des rôles :
 - Travail en sprints hebdomadaires d'une semaine, avec un objectif clair par semaine
 - Gestion du code via un dépôt Git partagé (branches par fonctionnalité)
 - Suivi des tâches simple (Kanban ou Notion : à faire / en cours / terminé)
+- Mise au point chaque matin 10h30
+- Groupe chat pour travail a distance
 
 ### Stack technique envisagée
 
