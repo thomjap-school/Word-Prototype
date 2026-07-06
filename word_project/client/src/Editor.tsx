@@ -26,13 +26,13 @@ function Editor() {
   if (!editor) return null
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="page-shell">
 
       {/* Top bar */}
-      <div className="bg-white border-b border-gray-200 px-6 h-12 flex items-center justify-between sticky top-0 z-10">
+      <div className="editor-topbar">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition"
+          className="editor-back-btn"
         >
           <ArrowLeft size={15} />
           Retour
@@ -41,19 +41,19 @@ function Editor() {
         <input
           type="text"
           defaultValue="Document sans titre"
-          className="text-sm font-medium text-gray-900 bg-transparent border-none outline-none text-center w-64"
+          className="editor-title-input"
         />
 
-        <button className="flex items-center gap-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-3 h-8 rounded-lg transition">
+        <button className="editor-save-btn">
           <Save size={14} />
           Enregistrer
         </button>
       </div>
 
       {/* Editor */}
-      <div className="max-w-3xl mx-auto mt-8 mb-16 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+      <div className="editor-frame">
         <Toolbar editor={editor} />
-        <div className="p-10 min-h-[700px]">
+        <div className="editor-body">
           <EditorContent
             editor={editor}
             className="tiptap prose max-w-none focus:outline-none"
