@@ -12,14 +12,10 @@ export default function Toolbar({ editor }: Props) {
   if (!editor) return null
 
   const btn = (active: boolean) =>
-    `w-8 h-8 flex items-center justify-center rounded transition
-    ${active
-      ? 'bg-blue-50 text-blue-600 border border-blue-200'
-      : 'text-gray-500 hover:bg-gray-100 border border-transparent'
-    }`
+    `toolbar-btn ${active ? 'toolbar-btn--active' : ''}`
 
   return (
-    <div className="flex items-center gap-0.5 px-3 py-2 border-b border-gray-200 bg-white flex-wrap">
+    <div className="toolbar">
 
       {/* Undo / Redo */}
       <button className={btn(false)} onClick={() => editor.chain().focus().undo().run()} title="Annuler">
@@ -29,7 +25,7 @@ export default function Toolbar({ editor }: Props) {
         <Redo size={15} />
       </button>
 
-      <div className="w-px h-5 bg-gray-200 mx-1.5" />
+      <div className="toolbar-divider" />
 
       {/* Headings */}
       <button
@@ -47,7 +43,7 @@ export default function Toolbar({ editor }: Props) {
         <Heading2 size={15} />
       </button>
 
-      <div className="w-px h-5 bg-gray-200 mx-1.5" />
+      <div className="toolbar-divider" />
 
       {/* Text style */}
       <button
@@ -79,7 +75,7 @@ export default function Toolbar({ editor }: Props) {
         <Strikethrough size={15} />
       </button>
 
-      <div className="w-px h-5 bg-gray-200 mx-1.5" />
+      <div className="toolbar-divider" />
 
       {/* Lists */}
       <button
@@ -90,7 +86,7 @@ export default function Toolbar({ editor }: Props) {
         <List size={15} />
       </button>
 
-      <div className="w-px h-5 bg-gray-200 mx-1.5" />
+      <div className="toolbar-divider" />
 
       {/* Alignment */}
       <button
