@@ -13,6 +13,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Home />} />
         <Route path="/editor" element={<EditorPage />} />
+        <Route path="/editor/:id" element={<EditorPage />} />
       </Route>
     </Routes>
   )

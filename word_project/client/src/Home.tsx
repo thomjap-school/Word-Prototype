@@ -1,14 +1,29 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft } from 'lucide-react'
+import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft, LoaderCircle } from 'lucide-react'
+import { listDocuments, type DocumentSummary } from './documentService'
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
 
 export default function Home() {
   const navigate = useNavigate()
+  const [documents, setDocuments] = useState<DocumentSummary[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const documents = [
-    { id: 1, title: 'Rapport de projet', updated: "Aujourd'hui à 10:45", isRecent: true },
-    { id: 2, title: 'Compte rendu réunion', updated: 'Hier à 17:20', isRecent: false },
-    { id: 3, title: 'Notes personnelles', updated: '22 juin 2026', isRecent: false },
-  ]
+  useEffect(() => {
+    listDocuments()
+      .then(setDocuments)
+      .catch(() => setError('Impossible de charger les documents'))
+      .finally(() => setLoading(false))
+  }, [])
 
   const templates = [
     { label: 'Document vide', icon: Plus, featured: true },
@@ -73,11 +88,24 @@ export default function Home() {
           Documents récents
         </p>
 
+        {loading && (
+          <div className="flex items-center gap-2 text-sm text-gray-400 py-4">
+            <LoaderCircle size={14} className="animate-spin" />
+            Chargement...
+          </div>
+        )}
+
+        {error && <p className="text-sm text-red-500 py-2">{error}</p>}
+
+        {!loading && !error && documents.length === 0 && (
+          <p className="text-sm text-gray-400 py-4">Aucun document pour le moment.</p>
+        )}
+
         <div className="doc-list">
           {documents.map((doc) => (
             <div
               key={doc.id}
-              onClick={() => navigate('/editor')}
+              onClick={() => navigate(`/editor/${doc.id}`)}
               className="doc-item group"
             >
 
@@ -89,15 +117,9 @@ export default function Home() {
                 <p className="doc-title">{doc.title}</p>
                 <div className="doc-meta">
                   <Clock size={11} />
-                  {doc.updated}
+                  {formatDate(doc.updated_at || doc.created_at)}
                 </div>
               </div>
-
-              {doc.isRecent && (
-                <span className="doc-badge">
-                  Récent
-                </span>
-              )}
 
               <div className="doc-open">
                 <ArrowRight size={13} />
