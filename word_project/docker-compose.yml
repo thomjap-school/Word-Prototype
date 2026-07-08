@@ -8,15 +8,29 @@ services:
     volumes:
       - ./server:/app
 
+  collab:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    ports:
+      - "1234:1234"
+    volumes:
+      - ./collab:/app
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_URL=http://backend:8000
+
   frontend:
     build: ./client
     ports:
       - "5173:5173"
     environment:
       - VITE_API_URL=/api
-      - VITE_COLLAB_WS_URL=ws://localhost:1234
+      - VITE_COLLAB_WS_URL=ws://collab:1234
     volumes:
       - ./client:/app
       - /app/node_modules
     depends_on:
       - backend
+      - collab

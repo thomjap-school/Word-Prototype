@@ -38,6 +38,8 @@ function getRoom(documentId: string) {
   return room
 }
 
+type ConnectionStatus = 'connecting' | 'connected' | 'disconnected'
+
 function Editor() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
@@ -60,9 +62,20 @@ function Editor() {
   // Suit l'état réel de la connexion WebSocket
   useEffect(() => {
     if (!provider) return
-    const handleStatus = ({ status }: { status: typeof status }) => setStatus(status)
+
+    const handleStatus = ({
+      status: connectionStatus,
+    }: {
+      status: ConnectionStatus
+    }) => {
+      setStatus(connectionStatus)
+    }
+
     provider.on('status', handleStatus)
-    return () => provider.off('status', handleStatus)
+
+    return () => {
+      provider.off('status', handleStatus)
+    }
   }, [provider])
 
   const editor = useEditor({
