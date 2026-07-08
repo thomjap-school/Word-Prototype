@@ -42,7 +42,7 @@ oauth2_scheme = HTTPBearer()
 
 
 def get_current_user(
-    credentials = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    credentials=Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     token = credentials.credentials
 
