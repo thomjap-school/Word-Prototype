@@ -7,14 +7,18 @@ from jose import jwt, JWTError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
+import os
+from dotenv import load_dotenv
 
 from app.database import get_db
 from app import models
 
+load_dotenv()
+
 # Configuration JWT — en prod ce secret devrait être dans .env
-SECRET_KEY = "change-moi-en-vrai-secret-plus-tard"
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-ne-pas-utiliser-en-prod")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24h
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -38,7 +42,7 @@ oauth2_scheme = HTTPBearer()
 
 
 def get_current_user(
-    credentials = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    credentials=Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     token = credentials.credentials
 
