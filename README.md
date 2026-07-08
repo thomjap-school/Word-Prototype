@@ -104,7 +104,15 @@ word_project/
 └── docker-compose.yml         # Orchestration services
 ```
 
+<<<<<<< HEAD
 ## Authentification
+=======
+- Travail en sprints hebdomadaires d'une semaine, avec un objectif clair par semaine
+- Gestion du code via un dépôt Git partagé (branches par fonctionnalité)
+- Suivi des tâches simple (Kanban ou Notion : à faire / en cours / terminé)
+- Mise au point chaque matin 10h30
+- Groupe chat pour travail a distance
+>>>>>>> e005cd3f491afcb11b8e696afbb54af5281a406f
 
 L'authentification utilise **JWT** (JSON Web Tokens) avec les meilleures pratiques :
 
@@ -118,7 +126,16 @@ L'authentification utilise **JWT** (JSON Web Tokens) avec les meilleures pratiqu
 - `POST /api/auth/login` - Se connecter
 - `POST /api/auth/logout` - Se déconnecter
 
+<<<<<<< HEAD
 ## Gestion des documents
+=======
+| Période | Objectifs |
+|---|---|
+| Semaine 1 | Authentification et gestion de comptes (email/mot de passe, JWT, base de données PostgreSQL via Docker) dockerisation complète de l'application + mise en place du squelette de l'éditeur |
+| Semaine 2 | Éditeur complet : formatage du texte, sauvegarde des documents liés à un compte utilisateur |
+| Semaine 3 | Collaboration en temps réel avec Yjs, mise en place de ngrok pour les tests entre membres de l'équipe |
+| Semaine 4 | Finitions (polish), correction des bugs, préparation de la démo finale |
+>>>>>>> e005cd3f491afcb11b8e696afbb54af5281a406f
 
 Les documents sont liés à un compte utilisateur et peuvent être :
 - Créés, modifiés et supprimés
