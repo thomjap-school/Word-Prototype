@@ -4,7 +4,7 @@ import EditorPage from './EditorPage'
 import LoginPage from './LoginPage'
 import RegisterPage from './RegisterPage'
 import ProtectedRoute from './ProtectedRoute'
-import BackgroundPicker from './BackgroundPicker'
+import ColorThemePicker from './Colorthemepicker'
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
           <Route path="/editor" element={<EditorPage />} />
         </Route>
       </Routes>
-      <BackgroundPicker />
+      <ColorThemePicker />
     </>
   )
 }
