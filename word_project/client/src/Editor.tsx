@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -6,91 +6,92 @@ import { Placeholder } from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
 import Collaboration from '@tiptap/extension-collaboration'
-import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
+import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import * as Y from 'yjs'
-import { HocuspocusProvider } from '@hocuspocus/provider'
+import { WebsocketProvider } from 'y-websocket'
 import Toolbar from './Toolbar'
 import { ArrowLeft, LoaderCircle } from 'lucide-react'
-import { getDocument, updateDocumentTitle, updateDocumentContent } from './documentService'
-import { getCurrentUser } from './authService'
+import { getDocument, updateDocumentTitle } from './documentService'
 
-const randomColor = () =>
-  `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`
+const WEBSOCKET_URL = import.meta.env.VITE_COLLAB_WS_URL || 'ws://localhost:1234'
+
+const USER_COLORS = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#f472b6']
+const currentUser = {
+  name: `Invité ${Math.floor(Math.random() * 1000)}`,
+  color: USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)],
+}
+
+// Cache module-level : une room (ydoc + provider) par document, réutilisée
+// tant que l'onglet vit. Même logique que le prototype (créé hors composant),
+// mais indexé par documentId pour supporter plusieurs documents distincts,
+// et pour survivre au double-montage de React.StrictMode en dev.
+const rooms = new Map<string, { ydoc: Y.Doc; provider: WebsocketProvider }>()
+
+function getRoom(documentId: string) {
+  let room = rooms.get(documentId)
+  if (!room) {
+    const ydoc = new Y.Doc()
+    const provider = new WebsocketProvider(WEBSOCKET_URL, `document-${documentId}`, ydoc)
+    room = { ydoc, provider }
+    rooms.set(documentId, room)
+  }
+  return room
+}
 
 function Editor() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const documentId = id ?? null
+
+  // En collaboratif, il faut un id existant avant d'ouvrir l'éditeur
+  // (le document doit être créé via l'API AVANT la navigation vers /editor/:id)
+  useEffect(() => {
+    if (!id) navigate('/')
+  }, [id, navigate])
+
+  const { ydoc, provider } = useMemo(
+    () => (id ? getRoom(id) : { ydoc: null, provider: null }),
+    [id]
+  )
 
   const [title, setTitle] = useState('Document sans titre')
-  const [content, setContent] = useState<any>(null)
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting')
   const [error, setError] = useState<string | null>(null)
-  const [currentUser, setCurrentUser] = useState<{ name?: string } | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
 
-  const { ydoc, provider } = useMemo(() => {
-    if (!documentId) return { ydoc: null, provider: null }
-
-    const ydoc = new Y.Doc()
-    const provider = new HocuspocusProvider({
-      url: import.meta.env.VITE_COLLAB_WS_URL,
-      name: String(documentId), // room = id du document
-      document: ydoc,
-      token: localStorage.getItem('authToken') ?? undefined,
-      onStatus: ({ status }) => setStatus(status),
-    })
-
-    return { ydoc, provider }
-  }, [documentId])
+  // Suit l'état réel de la connexion WebSocket
+  useEffect(() => {
+    if (!provider) return
+    const handleStatus = ({ status }: { status: typeof status }) => setStatus(status)
+    provider.on('status', handleStatus)
+    return () => provider.off('status', handleStatus)
+  }, [provider])
 
   const editor = useEditor({
     immediatelyRender: false,
-    content,
-    extensions: [
-      StarterKit.configure({ history: true }),
-      Underline,
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
-    ],
-  }, [content])
+    extensions: ydoc
+      ? [
+          StarterKit.configure({ undoRedo: false }), // historique géré par Yjs
+          Underline,
+          TextAlign.configure({ types: ['heading', 'paragraph'] }),
+          Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
+          Collaboration.configure({ document: ydoc }),
+          CollaborationCaret.configure({ provider, user: currentUser }),
+        ]
+      : [],
+  }, [ydoc])
 
+  // Le titre reste géré via ton API REST classique — seul le contenu
+  // transite désormais par Yjs / la connexion WebSocket
   useEffect(() => {
-    if (!documentId) return
-    Promise.all([
-      getDocument(documentId).then((doc) => {
-        setTitle(doc.title)
-        setContent(doc.content)
-        setIsSaving(true)
-      }),
-      getCurrentUser().then((user) => setCurrentUser(user)).catch(() => null),
-    ]).catch(() => setError('Impossible de charger le document'))
-  }, [documentId])
-
-  useEffect(() => {
-    return () => {
-      provider?.destroy()
-      ydoc?.destroy()
-    }
-  }, [provider, ydoc])
-
-  // Auto-save all 100ms
-  useEffect(() => {
-    if (!documentId || !editor || !isSaving) return
-
-    const interval = setInterval(() => {
-      updateDocumentContent(documentId, editor.getJSON()).catch(() =>
-        setError('Erreur lors de la sauvegarde')
-      )
-    }, 100)
-
-    return () => clearInterval(interval)
-  }, [editor, documentId, isSaving])
+    if (!id) return
+    getDocument(Number(id))
+      .then((doc) => setTitle(doc.title))
+      .catch(() => setError('Impossible de charger le document'))
+  }, [id])
 
   const handleTitleBlur = async () => {
-    if (!documentId) return
+    if (!id) return
     try {
-      await updateDocumentTitle(documentId, title)
+      await updateDocumentTitle(Number(id), title)
     } catch {
       setError('Erreur lors de la sauvegarde du titre')
     }
@@ -121,7 +122,7 @@ function Editor() {
         />
 
         <span className={`editor-status editor-status--${status}`}>
-          Local
+          {status === 'connected' ? 'Synchronisé' : status === 'connecting' ? 'Connexion...' : 'Hors ligne'}
         </span>
       </div>
 
