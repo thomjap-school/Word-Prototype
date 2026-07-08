@@ -16,6 +16,8 @@ class User(Base):
     full_name = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    documents = relationship("Document", back_populates="owner")
+
 
 class Document(Base):
     __tablename__ = "documents"
