@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Placeholder } from '@tiptap/extension-placeholder'
@@ -7,8 +7,45 @@ import Underline from '@tiptap/extension-underline'
 import Toolbar from './Toolbar'
 import { ArrowLeft, Save } from 'lucide-react'
 
+const TEMPLATES: Record<string, { title: string; content: string }> = {
+  'Rapport': {
+    title: 'Rapport de projet',
+    content: `
+      <h1>Rapport de projet</h1>
+      <h2>Introduction</h2>
+      <p>Contexte et objectifs du projet...</p>
+      <h2>Déroulement</h2>
+      <p>Étapes réalisées...</p>
+      <h2>Conclusion</h2>
+      <p>Bilan et perspectives...</p>
+    `,
+  },
+  'Compte rendu': {
+    title: 'Compte rendu de réunion',
+    content: `
+      <h1>Compte rendu de réunion</h1>
+      <p><strong>Date :</strong> </p>
+      <p><strong>Participants :</strong> </p>
+      <h2>Ordre du jour</h2>
+      <p></p>
+      <h2>Décisions prises</h2>
+      <p></p>
+    `,
+  },
+  'Mémo': {
+    title: 'Mémo',
+    content: `
+      <h1>Mémo</h1>
+      <p></p>
+    `,
+  },
+}
+
 function Editor() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const templateName = (location.state as { template?: string } | null)?.template
+  const template = templateName ? TEMPLATES[templateName] : undefined
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -20,7 +57,7 @@ function Editor() {
         placeholder: 'Commence à écrire ici...',
       }),
     ],
-    content: '',
+    content: template?.content ?? '',
   })
 
   if (!editor) return null
@@ -40,7 +77,7 @@ function Editor() {
 
         <input
           type="text"
-          defaultValue="Document sans titre"
+          defaultValue={template?.title ?? 'Document sans titre'}
           className="editor-title-input"
         />
 
