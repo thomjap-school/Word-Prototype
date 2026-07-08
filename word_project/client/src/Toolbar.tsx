@@ -1,4 +1,4 @@
-import { Editor } from '@tiptap/react'
+import { Editor, useEditorState } from '@tiptap/react'
 import {
   Bold, Italic, Underline, List, Heading1, Heading2,
   Strikethrough, AlignLeft, AlignCenter, AlignRight, Undo, Redo
@@ -9,7 +9,26 @@ type Props = {
 }
 
 export default function Toolbar({ editor }: Props) {
-  if (!editor) return null
+  const editorState = useEditorState({
+    editor,
+    selector: (ctx) => {
+      if (!ctx.editor) return null
+      return {
+        isHeading1: ctx.editor.isActive('heading', { level: 1 }),
+        isHeading2: ctx.editor.isActive('heading', { level: 2 }),
+        isBold: ctx.editor.isActive('bold'),
+        isItalic: ctx.editor.isActive('italic'),
+        isUnderline: ctx.editor.isActive('underline'),
+        isStrike: ctx.editor.isActive('strike'),
+        isBulletList: ctx.editor.isActive('bulletList'),
+        isAlignLeft: ctx.editor.isActive({ textAlign: 'left' }),
+        isAlignCenter: ctx.editor.isActive({ textAlign: 'center' }),
+        isAlignRight: ctx.editor.isActive({ textAlign: 'right' }),
+      }
+    },
+  })
+
+  if (!editor || !editorState) return null
 
   const btn = (active: boolean) =>
     `toolbar-btn ${active ? 'toolbar-btn--active' : ''}`
@@ -29,14 +48,14 @@ export default function Toolbar({ editor }: Props) {
 
       {/* Headings */}
       <button
-        className={btn(editor.isActive('heading', { level: 1 }))}
+        className={btn(editorState.isHeading1)}
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
         title="Titre 1"
       >
         <Heading1 size={15} />
       </button>
       <button
-        className={btn(editor.isActive('heading', { level: 2 }))}
+        className={btn(editorState.isHeading2)}
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
         title="Titre 2"
       >
@@ -47,28 +66,28 @@ export default function Toolbar({ editor }: Props) {
 
       {/* Text style */}
       <button
-        className={btn(editor.isActive('bold'))}
+        className={btn(editorState.isBold)}
         onClick={() => editor.chain().focus().toggleBold().run()}
         title="Gras"
       >
         <Bold size={15} />
       </button>
       <button
-        className={btn(editor.isActive('italic'))}
+        className={btn(editorState.isItalic)}
         onClick={() => editor.chain().focus().toggleItalic().run()}
         title="Italique"
       >
         <Italic size={15} />
       </button>
       <button
-        className={btn(editor.isActive('underline'))}
+        className={btn(editorState.isUnderline)}
         onClick={() => editor.chain().focus().toggleUnderline().run()}
         title="Souligné"
       >
         <Underline size={15} />
       </button>
       <button
-        className={btn(editor.isActive('strike'))}
+        className={btn(editorState.isStrike)}
         onClick={() => editor.chain().focus().toggleStrike().run()}
         title="Barré"
       >
@@ -79,7 +98,7 @@ export default function Toolbar({ editor }: Props) {
 
       {/* Lists */}
       <button
-        className={btn(editor.isActive('bulletList'))}
+        className={btn(editorState.isBulletList)}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         title="Liste à puces"
       >
@@ -90,21 +109,21 @@ export default function Toolbar({ editor }: Props) {
 
       {/* Alignment */}
       <button
-        className={btn(editor.isActive({ textAlign: 'left' }))}
+        className={btn(editorState.isAlignLeft)}
         onClick={() => editor.chain().focus().setTextAlign('left').run()}
         title="Aligner à gauche"
       >
         <AlignLeft size={15} />
       </button>
       <button
-        className={btn(editor.isActive({ textAlign: 'center' }))}
+        className={btn(editorState.isAlignCenter)}
         onClick={() => editor.chain().focus().setTextAlign('center').run()}
         title="Centrer"
       >
         <AlignCenter size={15} />
       </button>
       <button
-        className={btn(editor.isActive({ textAlign: 'right' }))}
+        className={btn(editorState.isAlignRight)}
         onClick={() => editor.chain().focus().setTextAlign('right').run()}
         title="Aligner à droite"
       >
