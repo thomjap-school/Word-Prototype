@@ -19,6 +19,10 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/visitor`, {
+      method: "POST",
+    }).catch(() => {})
+
     listDocuments()
       .then(setDocuments)
       .catch(() => setError('Impossible de charger les documents'))
