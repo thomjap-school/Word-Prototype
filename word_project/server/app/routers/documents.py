@@ -46,7 +46,7 @@ def create_document(
 ):
     doc = models.Document(
         title=payload.title,
-        content=payload.content,
+        content=payload.content,  # sera None dans le nouveau flux
         owner_id=current_user.id,
     )
     db.add(doc)

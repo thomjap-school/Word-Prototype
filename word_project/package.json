@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "react-router-dom": "^7.18.1"
+    "@hocuspocus/provider": "^4.3.0",
+    "@tiptap/extension-collaboration": "^3.27.3",
+    "@tiptap/extension-collaboration-caret": "^3.27.3",
+    "react-router-dom": "^7.18.1",
+    "yjs": "^13.6.31"
   }
 }

@@ -3,7 +3,7 @@
 
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Any
+from typing import Optional, Any
 
 
 # Ce que le client envoie pour s'inscrire
@@ -38,12 +38,12 @@ class Token(BaseModel):
 
 class DocumentCreate(BaseModel):
     title: str = "Document sans titre"
-    content: dict[str, Any] | None = None
+    content: Optional[Any] = None
 
 
 class DocumentUpdate(BaseModel):
     title: str | None = None
-    content: dict[str, Any] | None = None
+    content: Optional[dict[str, Any]] = None
 
 
 class DocumentOut(BaseModel):
