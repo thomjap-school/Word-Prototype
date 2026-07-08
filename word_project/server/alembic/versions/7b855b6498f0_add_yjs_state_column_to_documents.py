@@ -1,7 +1,7 @@
 """add yjs_state column to documents
 
 Revision ID: xxxx
-Revises: 
+Revises:
 Create Date: 2026-07-08
 
 """
@@ -17,7 +17,9 @@ depends_on = None
 
 def upgrade() -> None:
     with op.batch_alter_table("documents") as batch_op:
-        batch_op.add_column(sa.Column("yjs_state", sa.LargeBinary(), nullable=True))
+        batch_op.add_column(sa.Column("yjs_state",
+                                      sa.LargeBinary(),
+                                      nullable=True))
 
 
 def downgrade() -> None:
