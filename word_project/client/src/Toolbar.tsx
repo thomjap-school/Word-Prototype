@@ -1,14 +1,29 @@
+import { useEffect, useRef, useState } from 'react'
 import { Editor, useEditorState } from '@tiptap/react'
 import {
   Bold, Italic, Underline, List, Heading1, Heading2,
-  Strikethrough, AlignLeft, AlignCenter, AlignRight, Undo, Redo
+  Strikethrough, AlignLeft, AlignCenter, AlignRight, Undo, Redo, Palette
 } from 'lucide-react'
 
 type Props = {
   editor: Editor | null
 }
 
+const PRESET_COLORS = [
+  { label: 'Noir', value: '#111827' },
+  { label: 'Gris', value: '#6b7280' },
+  { label: 'Rouge', value: '#ef4444' },
+  { label: 'Orange', value: '#f97316' },
+  { label: 'Jaune', value: '#eab308' },
+  { label: 'Vert', value: '#22c55e' },
+  { label: 'Bleu', value: '#3b82f6' },
+  { label: 'Violet', value: '#a855f7' },
+]
+
 export default function Toolbar({ editor }: Props) {
+  const [colorOpen, setColorOpen] = useState(false)
+  const colorRef = useRef<HTMLDivElement>(null)
+
   const editorState = useEditorState({
     editor,
     selector: (ctx) => {
@@ -24,14 +39,35 @@ export default function Toolbar({ editor }: Props) {
         isAlignLeft: ctx.editor.isActive({ textAlign: 'left' }),
         isAlignCenter: ctx.editor.isActive({ textAlign: 'center' }),
         isAlignRight: ctx.editor.isActive({ textAlign: 'right' }),
+        color: ctx.editor.getAttributes('textStyle').color as string | undefined,
       }
     },
   })
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (colorRef.current && !colorRef.current.contains(e.target as Node)) {
+        setColorOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   if (!editor || !editorState) return null
 
   const btn = (active: boolean) =>
     `toolbar-btn ${active ? 'toolbar-btn--active' : ''}`
+
+  const setColor = (value: string) => {
+    editor.chain().focus().setColor(value).run()
+    setColorOpen(false)
+  }
+
+  const resetColor = () => {
+    editor.chain().focus().unsetColor().run()
+    setColorOpen(false)
+  }
 
   return (
     <div className="toolbar">
@@ -93,6 +129,49 @@ export default function Toolbar({ editor }: Props) {
       >
         <Strikethrough size={15} />
       </button>
+
+      {/* Color picker */}
+      <div className="toolbar-color-wrap" ref={colorRef}>
+        <button
+          className={btn(!!editorState.color)}
+          onClick={() => setColorOpen((v) => !v)}
+          title="Couleur du texte"
+        >
+          <Palette size={15} style={editorState.color ? { color: editorState.color } : undefined} />
+        </button>
+
+        {colorOpen && (
+          <div className="color-popover">
+            <div className="color-grid">
+              {PRESET_COLORS.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  className={`color-swatch ${editorState.color === c.value ? 'color-swatch--active' : ''}`}
+                  style={{ backgroundColor: c.value }}
+                  title={c.label}
+                  onClick={() => setColor(c.value)}
+                />
+              ))}
+            </div>
+            <div className="color-popover-footer">
+              <label className="color-custom-label">
+                <input
+                  type="color"
+                  className="color-custom-input"
+                  value={editorState.color || '#111827'}
+                  onChange={(e) => setColor(e.target.value)}
+                  title="Couleur personnalisée"
+                />
+                Personnalisée
+              </label>
+              <button type="button" className="color-reset-btn" onClick={resetColor}>
+                Réinitialiser
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="toolbar-divider" />
 
