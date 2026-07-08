@@ -1,14 +1,17 @@
 import { useNavigate } from 'react-router-dom'
-import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft } from 'lucide-react'
+import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft, LogOut } from 'lucide-react'
+import { logout } from './authService'
 
 export default function Home() {
   const navigate = useNavigate()
 
-  const documents = [
-    { id: 1, title: 'Rapport de projet', updated: "Aujourd'hui à 10:45", isRecent: true },
-    { id: 2, title: 'Compte rendu réunion', updated: 'Hier à 17:20', isRecent: false },
-    { id: 3, title: 'Notes personnelles', updated: '22 juin 2026', isRecent: false },
-  ]
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
+
+  const documents: { id: number; title: string; updated: string; isRecent: boolean }[] = []
 
   const templates = [
     { label: 'Document vide', icon: Plus, featured: true },
@@ -39,8 +42,14 @@ export default function Home() {
           />
         </div>
 
-        <div className="user-avatar">
-          EM
+        <div className="flex items-center gap-3">
+          <button onClick={handleLogout} className="logout-btn" title="Se déconnecter">
+            <LogOut size={14} />
+            Déconnexion
+          </button>
+          <div className="user-avatar">
+            EM
+          </div>
         </div>
 
       </header>
@@ -57,7 +66,7 @@ export default function Home() {
           {templates.map(({ label, icon: Icon, featured }) => (
             <div
               key={label}
-              onClick={() => navigate('/editor')}
+              onClick={() => navigate('/editor', { state: { template: label } })}
               className={`template-card ${featured ? 'template-card--featured' : ''}`}
             >
               <Icon size={22} className={featured ? 'template-icon--featured' : 'template-icon'} />
@@ -106,6 +115,12 @@ export default function Home() {
 
             </div>
           ))}
+
+          {documents.length === 0 && (
+            <p className="text-sm text-gray-400 italic px-3 py-2">
+              Aucun document pour l'instant.
+            </p>
+          )}
         </div>
 
       </main>
