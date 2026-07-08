@@ -11,7 +11,8 @@ import * as Y from 'yjs'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import Toolbar from './Toolbar'
 import { ArrowLeft, LoaderCircle } from 'lucide-react'
-import { getDocument, updateDocumentTitle } from './documentService'
+import { getDocument, updateDocumentTitle, updateDocumentContent } from './documentService'
+import { getCurrentUser } from './authService'
 
 const randomColor = () =>
   `hsl(${Math.floor(Math.random() * 360)}, 70%, 50%)`
@@ -19,11 +20,14 @@ const randomColor = () =>
 function Editor() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const documentId = id ?? null // en collaboratif, l'id doit exister avant d'ouvrir l'éditeur
+  const documentId = id ?? null
 
   const [title, setTitle] = useState('Document sans titre')
+  const [content, setContent] = useState<any>(null)
   const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting')
   const [error, setError] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<{ name?: string } | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   const { ydoc, provider } = useMemo(() => {
     if (!documentId) return { ydoc: null, provider: null }
@@ -42,29 +46,25 @@ function Editor() {
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: ydoc
-      ? [
-          StarterKit.configure({ history: false }),
-          Underline,
-          TextAlign.configure({ types: ['heading', 'paragraph'] }),
-          Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
-          Collaboration.configure({ document: ydoc }),
-          CollaborationCursor.configure({
-            provider,
-            user: {
-              name: currentUser?.name ?? 'Anonyme',
-              color: randomColor(),
-            },
-          }),
-        ]
-      : [],
-  }, [ydoc])
+    content,
+    extensions: [
+      StarterKit.configure({ history: true }),
+      Underline,
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
+    ],
+  }, [content])
 
   useEffect(() => {
     if (!documentId) return
-    getDocument(documentId)
-      .then((doc) => setTitle(doc.title))
-      .catch(() => setError('Impossible de charger le document'))
+    Promise.all([
+      getDocument(documentId).then((doc) => {
+        setTitle(doc.title)
+        setContent(doc.content)
+        setIsSaving(true)
+      }),
+      getCurrentUser().then((user) => setCurrentUser(user)).catch(() => null),
+    ]).catch(() => setError('Impossible de charger le document'))
   }, [documentId])
 
   useEffect(() => {
@@ -73,6 +73,19 @@ function Editor() {
       ydoc?.destroy()
     }
   }, [provider, ydoc])
+
+  // Auto-save all 100ms
+  useEffect(() => {
+    if (!documentId || !editor || !isSaving) return
+
+    const interval = setInterval(() => {
+      updateDocumentContent(documentId, editor.getJSON()).catch(() =>
+        setError('Erreur lors de la sauvegarde')
+      )
+    }, 100)
+
+    return () => clearInterval(interval)
+  }, [editor, documentId, isSaving])
 
   const handleTitleBlur = async () => {
     if (!documentId) return
@@ -83,7 +96,7 @@ function Editor() {
     }
   }
 
-  if (!editor || status === 'connecting') {
+  if (!editor) {
     return (
       <div className="page-shell flex items-center justify-center min-h-screen">
         <LoaderCircle className="w-6 h-6 animate-spin text-gray-400" />
@@ -108,7 +121,7 @@ function Editor() {
         />
 
         <span className={`editor-status editor-status--${status}`}>
-          {status === 'connected' ? 'Synchronisé' : 'Hors ligne'}
+          Local
         </span>
       </div>
 

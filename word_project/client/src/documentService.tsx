@@ -72,6 +72,18 @@ export async function updateDocumentTitle(
   return parseErrorOrJson(res);
 }
 
+export async function updateDocumentContent(
+  id: number,
+  content: JSONContent
+): Promise<DocumentOut> {
+  const res = await fetch(`${API_URL}/documents/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify({ content }),
+  });
+  return parseErrorOrJson(res);
+}
+
 export async function deleteDocument(id: number): Promise<void> {
   const res = await fetch(`${API_URL}/documents/${id}`, {
     method: "DELETE",
