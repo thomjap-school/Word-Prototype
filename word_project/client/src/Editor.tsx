@@ -5,6 +5,8 @@ import StarterKit from '@tiptap/starter-kit'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
+import { TextStyle } from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
 import Toolbar from './Toolbar'
 import { ArrowLeft, Save, LoaderCircle } from 'lucide-react'
 import { getDocument, createDocument, updateDocument } from './documentService'
@@ -25,6 +27,8 @@ function Editor() {
     extensions: [
       StarterKit,
       Underline,
+      TextStyle,
+      Color,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({
         placeholder: 'Commence à écrire ici...',

@@ -188,3 +188,41 @@
 .toolbar-divider {
   @apply w-px h-5 bg-gray-200 mx-1.5;
 }
+
+/* Color picker */
+.toolbar-color-wrap {
+  @apply relative;
+}
+.color-popover {
+  @apply absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-20 w-44;
+}
+.color-grid {
+  @apply grid grid-cols-4 gap-2 mb-3;
+}
+.color-swatch {
+  @apply w-7 h-7 rounded-full border-2 border-transparent cursor-pointer transition hover:scale-110;
+}
+.color-swatch--active {
+  @apply border-gray-900;
+}
+.color-popover-footer {
+  @apply flex items-center justify-between gap-2 pt-2 border-t border-gray-100;
+}
+.color-custom-label {
+  @apply flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer;
+}
+.color-custom-input {
+  @apply w-6 h-6 rounded-full border border-gray-200 cursor-pointer p-0;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.color-custom-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.color-custom-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 9999px;
+}
+.color-reset-btn {
+  @apply text-xs font-medium text-gray-500 hover:text-gray-900 transition;
+}
