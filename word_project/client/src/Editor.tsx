@@ -7,6 +7,7 @@ import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
 import Toolbar from './Toolbar'
 import ShareDialog from './Sharedialog'
+import ExportImportMenu from './Exportimportmenu'
 import { ArrowLeft, Save, LoaderCircle, Users } from 'lucide-react'
 import {
   getDocument,
@@ -131,6 +132,8 @@ function Editor() {
         />
 
         <div className="flex items-center gap-2">
+          <ExportImportMenu editor={editor} title={title} />
+
           {!isNew && id && (
             <button
               onClick={() => setShareOpen(true)}
