@@ -1,37 +1,60 @@
 import { useState } from "react";
-import { Palette, Check } from "lucide-react";
+import { Palette, RotateCcw } from "lucide-react";
 import { useColorTheme } from "./Usecolortheme";
 
 export default function ColorThemePicker() {
   const [open, setOpen] = useState(false);
-  const { themeId, setThemeId, themes } = useColorTheme();
+  const { colors, setBackground, setTextStrong, setPrimary, reset } = useColorTheme();
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
       {open && (
-        <div className="mb-2 bg-white shadow-md border border-gray-200 rounded-xl p-3 flex flex-col gap-1 w-44">
-          {themes.map((theme) => (
-            <button
-              key={theme.id}
-              onClick={() => {
-                setThemeId(theme.id);
-                setOpen(false);
-              }}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <span
-                className="w-4 h-4 rounded-full shrink-0 border border-black/10"
-                style={{ backgroundColor: theme.primary }}
-              />
-              <span className="flex-1 text-left">{theme.label}</span>
-              {themeId === theme.id && <Check className="w-3.5 h-3.5 text-gray-400" />}
-            </button>
-          ))}
+        <div className="mb-2 bg-white shadow-md border border-gray-200 rounded-xl p-4 w-56 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <label htmlFor="color-bg" className="text-sm text-gray-700">Fond</label>
+            <input
+              id="color-bg"
+              type="color"
+              value={colors.background}
+              onChange={(e) => setBackground(e.target.value)}
+              className="w-8 h-8 rounded cursor-pointer border border-gray-200"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <label htmlFor="color-text" className="text-sm text-gray-700">Texte / logo</label>
+            <input
+              id="color-text"
+              type="color"
+              value={colors.textStrong}
+              onChange={(e) => setTextStrong(e.target.value)}
+              className="w-8 h-8 rounded cursor-pointer border border-gray-200"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <label htmlFor="color-primary" className="text-sm text-gray-700">Boutons</label>
+            <input
+              id="color-primary"
+              type="color"
+              value={colors.primary}
+              onChange={(e) => setPrimary(e.target.value)}
+              className="w-8 h-8 rounded cursor-pointer border border-gray-200"
+            />
+          </div>
+
+          <button
+            onClick={reset}
+            className="flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors pt-1 border-t border-gray-100"
+          >
+            <RotateCcw className="w-3 h-3" />
+            Réinitialiser
+          </button>
         </div>
       )}
       <button
         onClick={() => setOpen((v) => !v)}
-        title="Changer les couleurs"
+        title="Personnaliser les couleurs"
         className="flex items-center gap-2 bg-white shadow-md border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
       >
         <Palette className="w-4 h-4" />
