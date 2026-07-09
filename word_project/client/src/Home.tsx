@@ -10,7 +10,8 @@ export default function Home() {
     navigate('/login')
   }
 
-
+  // TODO: remplacer par un appel à l'API du backend (GET /documents ou équivalent)
+  // pour récupérer les vrais documents de l'utilisateur connecté.
   const documents: { id: number; title: string; updated: string; isRecent: boolean }[] = []
 
   const templates = [
@@ -47,7 +48,7 @@ export default function Home() {
             <LogOut size={14} />
             Déconnexion
           </button>
-          <div className="user-avatar">
+          <div className="user-avatar" onClick={() => navigate('/profile')} title="Mon profil">
             EM
           </div>
         </div>

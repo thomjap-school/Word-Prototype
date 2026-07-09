@@ -3,6 +3,7 @@ import Home from './Home'
 import EditorPage from './EditorPage'
 import LoginPage from './LoginPage'
 import RegisterPage from './RegisterPage'
+import ProfilePage from './ProfilePage'
 import ProtectedRoute from './ProtectedRoute'
 import ColorThemePicker from './Colorthemepicker'
 
@@ -15,6 +16,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Home />} />
           <Route path="/editor" element={<EditorPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
       <ColorThemePicker />
