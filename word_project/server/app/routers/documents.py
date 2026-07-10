@@ -1,3 +1,5 @@
+""" app/routers/documents.py """
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import desc

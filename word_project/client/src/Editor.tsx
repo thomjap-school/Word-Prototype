@@ -31,7 +31,9 @@ function getRoom(documentId: string) {
   let room = rooms.get(documentId)
   if (!room) {
     const ydoc = new Y.Doc()
-    const provider = new WebsocketProvider(WEBSOCKET_URL, `document-${documentId}`, ydoc)
+    const provider = new WebsocketProvider(WEBSOCKET_URL, `document-${documentId}`, ydoc, {
+      params: { 'ngrok-skip-browser-warning': 'true' },
+    })
     room = { ydoc, provider }
     rooms.set(documentId, room)
   }
@@ -95,11 +97,16 @@ function Editor() {
   // Le titre reste géré via ton API REST classique — seul le contenu
   // transite désormais par Yjs / la connexion WebSocket
   useEffect(() => {
-    if (!id) return
+    if (!id || !editor) return
     getDocument(Number(id))
-      .then((doc) => setTitle(doc.title))
+      .then((doc) => {
+        setTitle(doc.title)
+        if (doc.content && editor.isEmpty) {
+          editor.commands.setContent(doc.content)
+        }
+      })
       .catch(() => setError('Impossible de charger le document'))
-  }, [id])
+  }, [id, editor])
 
   const handleTitleBlur = async () => {
     if (!id) return
