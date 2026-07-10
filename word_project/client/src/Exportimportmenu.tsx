@@ -62,7 +62,7 @@ export default function ExportImportMenu({
   };
 
   return (
-    <div className="flex items-center gap-2 relative">
+    <div className="toolbar-action-group">
       <input
         ref={fileInputRef}
         type="file"
@@ -75,7 +75,7 @@ export default function ExportImportMenu({
         onClick={handleImportClick}
         disabled={importing}
         title="Importer un document (.docx ou .pdf)"
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition px-3 h-8 rounded-lg border border-gray-200"
+        className="toolbar-action-btn"
       >
         {importing ? (
           <LoaderCircle size={14} className="animate-spin" />
@@ -89,18 +89,15 @@ export default function ExportImportMenu({
         <button
           onClick={() => setExportOpen((v) => !v)}
           title="Exporter le document"
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition px-3 h-8 rounded-lg border border-gray-200"
+          className="toolbar-action-btn"
         >
           <Download size={14} />
           Exporter
         </button>
 
         {exportOpen && (
-          <div className="absolute right-0 top-full mt-1 bg-white shadow-md border border-gray-200 rounded-lg py-1 w-40 z-20">
-            <button
-              onClick={handleExportPdf}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
+          <div className="export-dropdown">
+            <button onClick={handleExportPdf} className="export-dropdown-item">
               <FileText size={14} />
               PDF
             </button>
@@ -108,11 +105,7 @@ export default function ExportImportMenu({
         )}
       </div>
 
-      {importError && (
-        <span className="absolute top-full right-0 mt-1 text-xs text-red-600 whitespace-nowrap">
-          {importError}
-        </span>
-      )}
+      {importError && <span className="import-error">{importError}</span>}
     </div>
   );
 }

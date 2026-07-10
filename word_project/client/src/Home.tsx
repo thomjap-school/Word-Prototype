@@ -69,7 +69,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="home-header-actions">
           <button onClick={handleLogout} className="logout-btn" title="Se déconnecter">
             <LogOut size={14} />
             Déconnexion
@@ -137,7 +137,7 @@ export default function Home() {
               <button
                 onClick={(e) => handleDelete(e, doc.id)}
                 title="Supprimer"
-                className="text-gray-300 hover:text-red-500 shrink-0 opacity-0 group-hover:opacity-100 transition p-1"
+                className="doc-delete-btn"
               >
                 <Trash2 size={14} />
               </button>

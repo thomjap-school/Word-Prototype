@@ -131,18 +131,18 @@ function Editor() {
           className="editor-title-input"
         />
 
-        <div className="flex items-center gap-2">
+        <div className="editor-actions">
           <ExportImportMenu editor={editor} title={title} />
 
           {!isNew && id && (
             <button
               onClick={() => setShareOpen(true)}
-              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition px-3 h-8 rounded-lg border border-gray-200"
+              className="toolbar-action-btn"
             >
               <Users size={14} />
               Partager
               {collaborators.length > 0 && (
-                <span className="text-xs bg-gray-100 rounded-full px-1.5">
+                <span className="share-count-badge">
                   {collaborators.length}
                 </span>
               )}

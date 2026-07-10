@@ -18,16 +18,16 @@ export default function JoinPage() {
   }, [token, navigate]);
 
   return (
-    <div className="page-shell flex items-center justify-center min-h-screen">
+    <div className="page-shell join-page-center">
       {error ? (
-        <div className="text-center">
-          <p className="text-sm text-red-600 mb-2">{error}</p>
-          <button onClick={() => navigate("/")} className="text-sm text-blue-600 hover:underline">
+        <div className="join-error-wrap">
+          <p className="join-error-text">{error}</p>
+          <button onClick={() => navigate("/")} className="join-error-link">
             Retour à l'accueil
           </button>
         </div>
       ) : (
-        <div className="flex items-center gap-2 text-gray-500 text-sm">
+        <div className="join-loading">
           <LoaderCircle className="w-4 h-4 animate-spin" />
           Connexion au document...
         </div>

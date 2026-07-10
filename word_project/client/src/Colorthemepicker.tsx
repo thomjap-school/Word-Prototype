@@ -7,56 +7,49 @@ export default function ColorThemePicker() {
   const { colors, setBackground, setTextStrong, setPrimary, reset } = useColorTheme();
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="floating-picker-wrap">
       {open && (
-        <div className="mb-2 bg-white shadow-md border border-gray-200 rounded-xl p-4 w-56 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <label htmlFor="color-bg" className="text-sm text-gray-700">Fond</label>
+        <div className="color-picker-panel">
+          <div className="color-picker-row">
+            <label htmlFor="color-bg" className="color-picker-label">Fond</label>
             <input
               id="color-bg"
               type="color"
               value={colors.background}
               onChange={(e) => setBackground(e.target.value)}
-              className="w-8 h-8 rounded cursor-pointer border border-gray-200"
+              className="color-picker-input"
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <label htmlFor="color-text" className="text-sm text-gray-700">Texte / logo</label>
+          <div className="color-picker-row">
+            <label htmlFor="color-text" className="color-picker-label">Texte / logo</label>
             <input
               id="color-text"
               type="color"
               value={colors.textStrong}
               onChange={(e) => setTextStrong(e.target.value)}
-              className="w-8 h-8 rounded cursor-pointer border border-gray-200"
+              className="color-picker-input"
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <label htmlFor="color-primary" className="text-sm text-gray-700">Boutons</label>
+          <div className="color-picker-row">
+            <label htmlFor="color-primary" className="color-picker-label">Boutons</label>
             <input
               id="color-primary"
               type="color"
               value={colors.primary}
               onChange={(e) => setPrimary(e.target.value)}
-              className="w-8 h-8 rounded cursor-pointer border border-gray-200"
+              className="color-picker-input"
             />
           </div>
 
-          <button
-            onClick={reset}
-            className="flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors pt-1 border-t border-gray-100"
-          >
+          <button onClick={reset} className="color-picker-reset">
             <RotateCcw className="w-3 h-3" />
             Réinitialiser
           </button>
         </div>
       )}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        title="Personnaliser les couleurs"
-        className="flex items-center gap-2 bg-white shadow-md border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-      >
+      <button onClick={() => setOpen((v) => !v)} title="Personnaliser les couleurs" className="floating-toggle-btn">
         <Palette className="w-4 h-4" />
         Couleurs
       </button>

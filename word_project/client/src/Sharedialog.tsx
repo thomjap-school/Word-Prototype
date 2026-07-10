@@ -64,45 +64,35 @@ export default function ShareDialog({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 px-4">
-      <div className="bg-white rounded-xl shadow-lg border border-gray-200 w-full max-w-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Partager le document</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+    <div className="share-overlay">
+      <div className="share-modal">
+        <div className="share-modal-header">
+          <h2 className="share-modal-title">Partager le document</h2>
+          <button onClick={onClose} className="share-modal-close">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleInvite} className="flex gap-2 mb-2">
-          <div className="relative flex-1">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        <form onSubmit={handleInvite} className="share-invite-form">
+          <div className="input-wrap flex-1">
+            <Mail className="input-icon" />
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="email@exemple.com"
-              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="form-input"
             />
           </div>
-          <button
-            type="submit"
-            disabled={inviting}
-            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white text-sm font-medium px-3 rounded-md transition-colors"
-          >
+          <button type="submit" disabled={inviting} className="share-invite-btn">
             {inviting && <LoaderCircle className="w-4 h-4 animate-spin" />}
             Inviter
           </button>
         </form>
-        {inviteError && (
-          <p className="text-sm text-red-600 mb-3">{inviteError}</p>
-        )}
+        {inviteError && <p className="share-error">{inviteError}</p>}
 
-        <button
-          onClick={handleCopyLink}
-          disabled={generatingLink}
-          className="w-full flex items-center justify-center gap-2 border border-gray-200 hover:bg-gray-50 text-sm text-gray-700 py-2 rounded-md transition-colors mb-4"
-        >
+        <button onClick={handleCopyLink} disabled={generatingLink} className="share-link-btn">
           {generatingLink ? (
             <LoaderCircle className="w-4 h-4 animate-spin" />
           ) : linkCopied ? (
@@ -112,26 +102,19 @@ export default function ShareDialog({
           )}
           {linkCopied ? "Lien copié !" : "Copier le lien de partage"}
         </button>
-        {linkError && (
-          <p className="text-sm text-red-600 mb-3 -mt-3">{linkError}</p>
-        )}
+        {linkError && <p className="share-link-error">{linkError}</p>}
 
         {collaborators.length > 0 && (
-          <div className="border-t border-gray-100 pt-3">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-              Collaborateurs
-            </p>
-            <div className="flex flex-col gap-1">
+          <div className="share-collab-section">
+            <p className="share-collab-label">Collaborateurs</p>
+            <div className="share-collab-list">
               {collaborators.map((c) => (
-                <div
-                  key={c.id}
-                  className="flex items-center justify-between text-sm text-gray-700 px-1 py-1"
-                >
+                <div key={c.id} className="share-collab-item">
                   <span className="truncate">{c.full_name || c.email}</span>
                   <button
                     onClick={() => handleRemove(c.id)}
                     title="Retirer"
-                    className="text-gray-400 hover:text-red-500 shrink-0"
+                    className="share-collab-remove"
                   >
                     <UserX className="w-3.5 h-3.5" />
                   </button>
@@ -144,3 +127,4 @@ export default function ShareDialog({
     </div>
   );
 }
+
