@@ -4,7 +4,7 @@
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from jose import jwt, JWTError
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 import os
@@ -63,3 +63,13 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+# Utilisé par le serveur de collaboration (Hocuspocus) pour lire/écrire les
+# documents sans passer par l'auth JWT utilisateur classique.
+INTERNAL_SECRET = os.getenv("INTERNAL_SECRET")
+
+
+def verify_internal_secret(x_internal_secret: str | None = Header(default=None)):
+    if not INTERNAL_SECRET or x_internal_secret != INTERNAL_SECRET:
+        raise HTTPException(status_code=401, detail="Secret interne invalide")
