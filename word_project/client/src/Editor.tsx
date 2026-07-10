@@ -4,11 +4,10 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
-import Underline from '@tiptap/extension-underline'
 import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import * as Y from 'yjs'
-import { WebsocketProvider } from 'y-websocket'
+import { HocuspocusProvider } from '@hocuspocus/provider'
 import Toolbar from './Toolbar'
 import { ArrowLeft, LoaderCircle } from 'lucide-react'
 import { getDocument, updateDocumentTitle } from './documentService'
@@ -25,14 +24,16 @@ const currentUser = {
 // tant que l'onglet vit. Même logique que le prototype (créé hors composant),
 // mais indexé par documentId pour supporter plusieurs documents distincts,
 // et pour survivre au double-montage de React.StrictMode en dev.
-const rooms = new Map<string, { ydoc: Y.Doc; provider: WebsocketProvider }>()
+const rooms = new Map<string, { ydoc: Y.Doc; provider: HocuspocusProvider }>()
 
 function getRoom(documentId: string) {
   let room = rooms.get(documentId)
   if (!room) {
     const ydoc = new Y.Doc()
-    const provider = new WebsocketProvider(WEBSOCKET_URL, `document-${documentId}`, ydoc, {
-      params: { 'ngrok-skip-browser-warning': 'true' },
+    const provider = new HocuspocusProvider({
+      url: `${WEBSOCKET_URL}?ngrok-skip-browser-warning=true`,
+      name: `document-${documentId}`,
+      document: ydoc,
     })
     room = { ydoc, provider }
     rooms.set(documentId, room)
@@ -85,7 +86,6 @@ function Editor() {
     extensions: ydoc
       ? [
           StarterKit.configure({ undoRedo: false }), // historique géré par Yjs
-          Underline,
           TextAlign.configure({ types: ['heading', 'paragraph'] }),
           Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
           Collaboration.configure({ document: ydoc }),
