@@ -4,7 +4,7 @@ import { TiptapTransformer } from '@hocuspocus/transformer'
 import * as Y from 'yjs'
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000'
-const INTERNAL_SECRET = process.env.INTERNAL_SECRET // à définir aussi côté FastAPI
+const INTERNAL_SECRET = process.env.INTERNAL_SECRET
 const PORT = 1234
 
 const server = Server.configure({
@@ -14,7 +14,7 @@ const server = Server.configure({
       fetch: async ({ documentName }) => {
         try {
           const docId = parseInt(documentName.replace('document-', ''))
-          const res = await fetch(`${BACKEND_URL}/documents/${docId}`, {
+          const res = await fetch(`${BACKEND_URL}/documents/internal/${docId}`, {
             headers: { 'X-Internal-Secret': INTERNAL_SECRET },
           })
           if (!res.ok) return null
@@ -38,7 +38,7 @@ const server = Server.configure({
 
           const content = TiptapTransformer.fromYdoc(ydoc, 'default')
 
-          await fetch(`${BACKEND_URL}/documents/${docId}`, {
+          await fetch(`${BACKEND_URL}/documents/internal/${docId}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
