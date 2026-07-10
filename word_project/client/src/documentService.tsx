@@ -10,12 +10,20 @@ export interface DocumentSummary {
   created_at: string;
 }
 
+export interface Collaborator {
+  id: number;
+  email: string;
+  full_name: string | null;
+}
+
 export interface DocumentOut {
   id: number;
   title: string;
   content: JSONContent | null;
   created_at: string;
   updated_at: string | null;
+  owner_id: number;
+  collaborators: Collaborator[];
 }
 
 function authHeaders() {
@@ -48,26 +56,35 @@ export async function getDocument(id: number): Promise<DocumentOut> {
   return parseErrorOrJson(res);
 }
 
-export async function createDocument(
-  title: string,
-  content: JSONContent
-): Promise<DocumentOut> {
+export async function createDocument(title: string): Promise<DocumentOut> {
   const res = await fetch(`${API_URL}/documents`, {
     method: "POST",
     headers: authHeaders(),
-    body: JSON.stringify({ title, content }),
+    body: JSON.stringify({ title }),
   });
   return parseErrorOrJson(res);
 }
 
-export async function updateDocument(
+export async function updateDocumentTitle(
   id: number,
-  payload: { title?: string; content?: JSONContent }
+  title: string
 ): Promise<DocumentOut> {
   const res = await fetch(`${API_URL}/documents/${id}`, {
     method: "PUT",
     headers: authHeaders(),
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ title }),
+  });
+  return parseErrorOrJson(res);
+}
+
+export async function updateDocumentContent(
+  id: number,
+  content: JSONContent
+): Promise<DocumentOut> {
+  const res = await fetch(`${API_URL}/documents/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify({ content }),
   });
   return parseErrorOrJson(res);
 }
@@ -81,4 +98,44 @@ export async function deleteDocument(id: number): Promise<void> {
     const data = await res.json().catch(() => null);
     throw new Error(data?.detail || "Une erreur est survenue");
   }
+}
+
+export async function inviteCollaborator(
+  id: number,
+  email: string
+): Promise<DocumentOut> {
+  const res = await fetch(`${API_URL}/documents/${id}/invite`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ email }),
+  });
+  return parseErrorOrJson(res);
+}
+
+export async function removeCollaborator(
+  id: number,
+  userId: number
+): Promise<DocumentOut> {
+  const res = await fetch(`${API_URL}/documents/${id}/collaborators/${userId}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  return parseErrorOrJson(res);
+}
+
+export async function generateShareLink(id: number): Promise<string> {
+  const res = await fetch(`${API_URL}/documents/${id}/share-link`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  const data = await parseErrorOrJson(res);
+  return `${window.location.origin}/join/${data.share_token}`;
+}
+
+export async function joinViaShareLink(token: string): Promise<DocumentOut> {
+  const res = await fetch(`${API_URL}/documents/join/${token}`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  return parseErrorOrJson(res);
 }

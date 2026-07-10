@@ -5,15 +5,36 @@ services:
       - "8000:8000"
     env_file:
       - ./server/.env
+    environment:
+      - INTERNAL_SECRET=${INTERNAL_SECRET:-dev-internal-secret-change-me}
     volumes:
       - ./server:/app
+
+  collab:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    ports:
+      - "1234:1234"
+    volumes:
+      - ./collab:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - INTERNAL_SECRET=${INTERNAL_SECRET:-dev-internal-secret-change-me}
 
   frontend:
     build: ./client
     ports:
       - "5173:5173"
+    environment:
+      - VITE_API_URL=/api
+      - VITE_COLLAB_WS_URL=ws://localhost:1234
     volumes:
       - ./client:/app
       - /app/node_modules
     depends_on:
       - backend
+      - collab

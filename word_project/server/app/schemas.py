@@ -1,9 +1,8 @@
 """ app/schemas.py """
 
-
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Any
+from typing import Optional, Any
 
 
 # Ce que le client envoie pour s'inscrire
@@ -36,14 +35,33 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class UserUpdate(BaseModel):
+    full_name: str | None = None
+    email: EmailStr | None = None
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+
 class DocumentCreate(BaseModel):
     title: str = "Document sans titre"
-    content: dict[str, Any] | None = None
+    content: Optional[Any] = None
 
 
 class DocumentUpdate(BaseModel):
     title: str | None = None
-    content: dict[str, Any] | None = None
+    content: Optional[dict[str, Any]] = None
+
+
+class CollaboratorOut(BaseModel):
+    id: int
+    email: str
+    full_name: str | None
+
+    class Config:
+        from_attributes = True
 
 
 class DocumentOut(BaseModel):
@@ -52,6 +70,8 @@ class DocumentOut(BaseModel):
     content: dict[str, Any] | None
     created_at: datetime
     updated_at: datetime | None
+    owner_id: int
+    collaborators: list[CollaboratorOut] = []
 
     class Config:
         from_attributes = True
@@ -65,3 +85,11 @@ class DocumentSummary(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class InviteRequest(BaseModel):
+    email: EmailStr
+
+
+class ShareLinkOut(BaseModel):
+    share_token: str

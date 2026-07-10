@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft, LoaderCircle } from 'lucide-react'
-import { listDocuments, type DocumentSummary } from './documentService'
+import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft, LoaderCircle, LogOut, Trash2 } from 'lucide-react'
+import { logout } from './authService'
+import { listDocuments, createDocument, deleteDocument, type DocumentSummary } from './documentService'
+
+const TEMPLATE_TITLES: Record<string, string> = {
+  'Document vide': 'Document sans titre',
+  'Rapport': 'Rapport de projet',
+  'Compte rendu': 'Compte rendu de réunion',
+  'Mémo': 'Mémo',
+}
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr)
@@ -17,13 +25,30 @@ export default function Home() {
   const [documents, setDocuments] = useState<DocumentSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
 
   useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/visitor`, {
+      method: "POST",
+    }).catch(() => {})
+
     listDocuments()
       .then(setDocuments)
       .catch(() => setError('Impossible de charger les documents'))
       .finally(() => setLoading(false))
   }, [])
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
+  const handleDelete = async (e: React.MouseEvent, docId: number) => {
+    e.stopPropagation()
+    if (!confirm('Supprimer ce document ? Cette action est irréversible.')) return
+    await deleteDocument(docId)
+    setDocuments((docs) => docs.filter((d) => d.id !== docId))
+  }
 
   const templates = [
     { label: 'Document vide', icon: Plus, featured: true },
@@ -31,6 +56,19 @@ export default function Home() {
     { label: 'Compte rendu', icon: ClipboardList, featured: false },
     { label: 'Mémo', icon: AlignLeft, featured: false },
   ]
+
+  const handleCreate = async (label: string) => {
+    if (creating) return
+    setCreating(true)
+    setError(null)
+    try {
+      const doc = await createDocument(TEMPLATE_TITLES[label] ?? 'Document sans titre')
+      navigate(`/editor/${doc.id}`, { state: { template: label } })
+    } catch {
+      setError('Impossible de créer le document')
+      setCreating(false)
+    }
+  }
 
   return (
     <div className="page-shell">
@@ -40,7 +78,7 @@ export default function Home() {
 
         <div className="app-logo">
           <div className="app-logo-icon">
-            <FileText size={14} className="text-white" />
+            <FileText size={14} />
           </div>
           <span className="app-logo-text">Word Prototype</span>
         </div>
@@ -54,8 +92,14 @@ export default function Home() {
           />
         </div>
 
-        <div className="user-avatar">
-          EM
+        <div className="home-header-actions">
+          <button onClick={handleLogout} className="logout-btn" title="Se déconnecter">
+            <LogOut size={14} />
+            Déconnexion
+          </button>
+          <div className="user-avatar" onClick={() => navigate('/profile')} title="Mon profil">
+            EM
+          </div>
         </div>
 
       </header>
@@ -72,8 +116,8 @@ export default function Home() {
           {templates.map(({ label, icon: Icon, featured }) => (
             <div
               key={label}
-              onClick={() => navigate('/editor')}
-              className={`template-card ${featured ? 'template-card--featured' : ''}`}
+              onClick={() => handleCreate(label)}
+              className={`template-card ${featured ? 'template-card--featured' : ''} ${creating ? 'opacity-50 pointer-events-none' : ''}`}
             >
               <Icon size={22} className={featured ? 'template-icon--featured' : 'template-icon'} />
               <span className="template-label">{label}</span>
@@ -126,8 +170,22 @@ export default function Home() {
                 Ouvrir
               </div>
 
+              <button
+                onClick={(e) => handleDelete(e, doc.id)}
+                title="Supprimer"
+                className="doc-delete-btn"
+              >
+                <Trash2 size={14} />
+              </button>
+
             </div>
           ))}
+
+          {!loading && documents.length === 0 && (
+            <p className="text-sm text-gray-400 italic px-3 py-2">
+              Aucun document pour l'instant.
+            </p>
+          )}
         </div>
 
       </main>

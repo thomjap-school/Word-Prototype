@@ -18,6 +18,16 @@ export interface RegisterPayload {
   full_name?: string;
 }
 
+export interface ProfileUpdatePayload {
+  email?: string;
+  full_name?: string;
+}
+
+export interface PasswordChangePayload {
+  current_password: string;
+  new_password: string;
+}
+
 async function parseErrorOrJson(res: Response) {
   const data = await res.json().catch(() => null);
   if (!res.ok) {
@@ -46,12 +56,39 @@ export async function register(payload: RegisterPayload): Promise<UserOut> {
   return parseErrorOrJson(res);
 }
 
+function authHeaders() {
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${getToken()}`,
+  };
+}
+
 export async function getCurrentUser(): Promise<UserOut> {
-  const token = getToken();
   const res = await fetch(`${API_URL}/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
+    headers: authHeaders(),
   });
   return parseErrorOrJson(res);
+}
+
+export async function updateProfile(payload: ProfileUpdatePayload): Promise<UserOut> {
+  const res = await fetch(`${API_URL}/auth/me`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+  return parseErrorOrJson(res);
+}
+
+export async function changePassword(payload: PasswordChangePayload): Promise<void> {
+  const res = await fetch(`${API_URL}/auth/me/password`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.detail || "Une erreur est survenue");
+  }
 }
 
 export function logout() {
