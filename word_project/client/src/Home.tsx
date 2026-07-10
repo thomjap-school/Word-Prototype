@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft, LoaderCircle } from 'lucide-react'
-import { listDocuments, type DocumentSummary } from './documentService'
+import { listDocuments, createDocument, type DocumentSummary } from './documentService'
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr)
@@ -17,8 +17,13 @@ export default function Home() {
   const [documents, setDocuments] = useState<DocumentSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [creating, setCreating] = useState(false)
 
   useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL}/visitor`, {
+      method: "POST",
+    }).catch(() => {})
+
     listDocuments()
       .then(setDocuments)
       .catch(() => setError('Impossible de charger les documents'))
@@ -31,6 +36,19 @@ export default function Home() {
     { label: 'Compte rendu', icon: ClipboardList, featured: false },
     { label: 'Mémo', icon: AlignLeft, featured: false },
   ]
+
+  const handleCreate = async (label: string) => {
+    if (creating) return
+    setCreating(true)
+    setError(null)
+    try {
+      const doc = await createDocument(label)
+      navigate(`/editor/${doc.id}`)
+    } catch {
+      setError('Impossible de créer le document')
+      setCreating(false)
+    }
+  }
 
   return (
     <div className="page-shell">
@@ -72,8 +90,8 @@ export default function Home() {
           {templates.map(({ label, icon: Icon, featured }) => (
             <div
               key={label}
-              onClick={() => navigate('/editor')}
-              className={`template-card ${featured ? 'template-card--featured' : ''}`}
+              onClick={() => handleCreate(label)}
+              className={`template-card ${featured ? 'template-card--featured' : ''} ${creating ? 'opacity-50 pointer-events-none' : ''}`}
             >
               <Icon size={22} className={featured ? 'template-icon--featured' : 'template-icon'} />
               <span className="template-label">{label}</span>

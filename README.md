@@ -26,7 +26,7 @@ L'application sera accessible à `http://localhost:5173` (client) et l'API à `h
 ```bash
 cd word_project/server
 python -m venv venv
-source venv/bin/activate  # Sur Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```

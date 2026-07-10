@@ -1,79 +1,123 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
-import Underline from '@tiptap/extension-underline'
-import { TextStyle } from '@tiptap/extension-text-style'
-import { Color } from '@tiptap/extension-color'
+import Collaboration from '@tiptap/extension-collaboration'
+import CollaborationCaret from '@tiptap/extension-collaboration-caret'
+import * as Y from 'yjs'
+import { HocuspocusProvider } from '@hocuspocus/provider'
 import Toolbar from './Toolbar'
-import { ArrowLeft, Save, LoaderCircle } from 'lucide-react'
-import { getDocument, createDocument, updateDocument } from './documentService'
+import { ArrowLeft, LoaderCircle } from 'lucide-react'
+import { getDocument, updateDocumentTitle } from './documentService'
+
+const WEBSOCKET_URL = import.meta.env.VITE_COLLAB_WS_URL || 'ws://localhost:1234'
+
+const USER_COLORS = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#f472b6']
+const currentUser = {
+  name: `Invité ${Math.floor(Math.random() * 1000)}`,
+  color: USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)],
+}
+
+// Cache module-level : une room (ydoc + provider) par document, réutilisée
+// tant que l'onglet vit. Même logique que le prototype (créé hors composant),
+// mais indexé par documentId pour supporter plusieurs documents distincts,
+// et pour survivre au double-montage de React.StrictMode en dev.
+const rooms = new Map<string, { ydoc: Y.Doc; provider: HocuspocusProvider }>()
+
+function getRoom(documentId: string) {
+  let room = rooms.get(documentId)
+  if (!room) {
+    const ydoc = new Y.Doc()
+    const provider = new HocuspocusProvider({
+      url: `${WEBSOCKET_URL}?ngrok-skip-browser-warning=true`,
+      name: `document-${documentId}`,
+      document: ydoc,
+    })
+    room = { ydoc, provider }
+    rooms.set(documentId, room)
+  }
+  return room
+}
+
+type ConnectionStatus = 'connecting' | 'connected' | 'disconnected'
 
 function Editor() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const documentId = id ? Number(id) : null
+
+  // En collaboratif, il faut un id existant avant d'ouvrir l'éditeur
+  // (le document doit être créé via l'API AVANT la navigation vers /editor/:id)
+  useEffect(() => {
+    if (!id) navigate('/')
+  }, [id, navigate])
+
+  const { ydoc, provider } = useMemo(
+    () => (id ? getRoom(id) : { ydoc: null, provider: null }),
+    [id]
+  )
 
   const [title, setTitle] = useState('Document sans titre')
-  const [currentId, setCurrentId] = useState<number | null>(documentId)
-  const [loading, setLoading] = useState(!!documentId)
-  const [saving, setSaving] = useState(false)
+  const [status, setStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting')
   const [error, setError] = useState<string | null>(null)
+
+  // Suit l'état réel de la connexion WebSocket
+  useEffect(() => {
+    if (!provider) return
+
+    const handleStatus = ({
+      status: connectionStatus,
+    }: {
+      status: ConnectionStatus
+    }) => {
+      setStatus(connectionStatus)
+    }
+
+    provider.on('status', handleStatus)
+
+    return () => {
+      provider.off('status', handleStatus)
+    }
+  }, [provider])
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [
-      StarterKit,
-      Underline,
-      TextStyle,
-      Color,
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      Placeholder.configure({
-        placeholder: 'Commence à écrire ici...',
-      }),
-    ],
-    content: '',
-  })
+    extensions: ydoc
+      ? [
+          StarterKit.configure({ undoRedo: false }), // historique géré par Yjs
+          TextAlign.configure({ types: ['heading', 'paragraph'] }),
+          Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
+          Collaboration.configure({ document: ydoc }),
+          CollaborationCaret.configure({ provider, user: currentUser }),
+        ]
+      : [],
+  }, [ydoc])
 
-  // Charger le document existant si on a un id dans l'URL
+  // Le titre reste géré via ton API REST classique — seul le contenu
+  // transite désormais par Yjs / la connexion WebSocket
   useEffect(() => {
-    if (!documentId || !editor) return
-
-    getDocument(documentId)
+    if (!id || !editor) return
+    getDocument(Number(id))
       .then((doc) => {
         setTitle(doc.title)
-        if (doc.content) {
+        if (doc.content && editor.isEmpty) {
           editor.commands.setContent(doc.content)
         }
       })
       .catch(() => setError('Impossible de charger le document'))
-      .finally(() => setLoading(false))
-  }, [documentId, editor])
+  }, [id, editor])
 
-  const handleSave = useCallback(async () => {
-    if (!editor) return
-    setSaving(true)
-    setError(null)
+  const handleTitleBlur = async () => {
+    if (!id) return
     try {
-      const content = editor.getJSON()
-      if (currentId) {
-        await updateDocument(currentId, { title, content })
-      } else {
-        const created = await createDocument(title, content)
-        setCurrentId(created.id)
-        // Met à jour l'URL sans recharger la page
-        navigate(`/editor/${created.id}`, { replace: true })
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde')
-    } finally {
-      setSaving(false)
+      await updateDocumentTitle(Number(id), title)
+    } catch {
+      setError('Erreur lors de la sauvegarde du titre')
     }
-  }, [editor, currentId, title, navigate])
+  }
 
-  if (!editor || loading) {
+  if (!editor) {
     return (
       <div className="page-shell flex items-center justify-center min-h-screen">
         <LoaderCircle className="w-6 h-6 animate-spin text-gray-400" />
@@ -83,13 +127,8 @@ function Editor() {
 
   return (
     <div className="page-shell">
-
-      {/* Top bar */}
       <div className="editor-topbar">
-        <button
-          onClick={() => navigate('/')}
-          className="editor-back-btn"
-        >
+        <button onClick={() => navigate('/')} className="editor-back-btn">
           <ArrowLeft size={15} />
           Retour
         </button>
@@ -98,13 +137,13 @@ function Editor() {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          onBlur={handleTitleBlur}
           className="editor-title-input"
         />
 
-        <button className="editor-save-btn" onClick={handleSave} disabled={saving}>
-          {saving ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}
-          Enregistrer
-        </button>
+        <span className={`editor-status editor-status--${status}`}>
+          {status === 'connected' ? 'Synchronisé' : status === 'connecting' ? 'Connexion...' : 'Hors ligne'}
+        </span>
       </div>
 
       {error && (
@@ -113,17 +152,12 @@ function Editor() {
         </div>
       )}
 
-      {/* Editor */}
       <div className="editor-frame">
         <Toolbar editor={editor} />
         <div className="editor-body">
-          <EditorContent
-            editor={editor}
-            className="tiptap prose max-w-none focus:outline-none"
-          />
+          <EditorContent editor={editor} className="tiptap prose max-w-none focus:outline-none" />
         </div>
       </div>
-
     </div>
   )
 }

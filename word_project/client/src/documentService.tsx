@@ -48,26 +48,38 @@ export async function getDocument(id: number): Promise<DocumentOut> {
   return parseErrorOrJson(res);
 }
 
+
 export async function createDocument(
-  title: string,
-  content: JSONContent
+  title: string
 ): Promise<DocumentOut> {
   const res = await fetch(`${API_URL}/documents`, {
     method: "POST",
     headers: authHeaders(),
-    body: JSON.stringify({ title, content }),
+    body: JSON.stringify({ title }),
   });
   return parseErrorOrJson(res);
 }
 
-export async function updateDocument(
+export async function updateDocumentTitle(
   id: number,
-  payload: { title?: string; content?: JSONContent }
+  title: string
 ): Promise<DocumentOut> {
   const res = await fetch(`${API_URL}/documents/${id}`, {
     method: "PUT",
     headers: authHeaders(),
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ title }),
+  });
+  return parseErrorOrJson(res);
+}
+
+export async function updateDocumentContent(
+  id: number,
+  content: JSONContent
+): Promise<DocumentOut> {
+  const res = await fetch(`${API_URL}/documents/${id}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify({ content }),
   });
   return parseErrorOrJson(res);
 }

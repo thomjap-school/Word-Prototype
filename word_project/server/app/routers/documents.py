@@ -1,3 +1,5 @@
+""" app/routers/documents.py """
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
@@ -46,7 +48,7 @@ def create_document(
 ):
     doc = models.Document(
         title=payload.title,
-        content=payload.content,
+        content=payload.content,  # sera None dans le nouveau flux
         owner_id=current_user.id,
     )
     db.add(doc)
@@ -93,3 +95,38 @@ def delete_document(
         raise HTTPException(status_code=404, detail="Document introuvable")
     db.delete(doc)
     db.commit()
+
+
+# Routes internes utilisées par le serveur de collaboration (Hocuspocus),
+# authentifiées par secret partagé plutôt que par JWT utilisateur.
+@router.get("/internal/{document_id}", response_model=schemas.DocumentOut)
+def get_document_internal(
+    document_id: int,
+    db: Session = Depends(get_db),
+    _: None = Depends(security.verify_internal_secret),
+):
+    doc = db.query(models.Document).filter(models.Document.id == document_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document introuvable")
+    return doc
+
+
+@router.put("/internal/{document_id}", response_model=schemas.DocumentOut)
+def update_document_internal(
+    document_id: int,
+    payload: schemas.DocumentUpdate,
+    db: Session = Depends(get_db),
+    _: None = Depends(security.verify_internal_secret),
+):
+    doc = db.query(models.Document).filter(models.Document.id == document_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document introuvable")
+
+    if payload.title is not None:
+        doc.title = payload.title
+    if payload.content is not None:
+        doc.content = payload.content
+
+    db.commit()
+    db.refresh(doc)
+    return doc
