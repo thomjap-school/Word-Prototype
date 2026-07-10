@@ -35,6 +35,16 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class UserUpdate(BaseModel):
+    full_name: str | None = None
+    email: EmailStr | None = None
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+
 class DocumentCreate(BaseModel):
     title: str = "Document sans titre"
     content: Optional[Any] = None
