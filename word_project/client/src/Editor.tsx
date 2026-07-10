@@ -130,19 +130,22 @@ function Editor() {
   }, [ydoc])
 
   // Le titre et les collaborateurs restent gérés via l'API REST classique —
-  // seul le contenu transite désormais par Yjs / la connexion WebSocket
+  // le contenu, lui, ne doit jamais être écrit ici : il transite exclusivement
+  // par Yjs / la connexion WebSocket (voir collab/server.js). Poser du contenu
+  // REST sur l'éditeur en parallèle du sync Yjs crée deux arbres Y.Doc
+  // indépendants pour le même texte, qui peuvent entrer en collision et
+  // effacer ce qui vient d'être tapé.
   useEffect(() => {
     if (!id || !editor) return
     getDocument(Number(id))
       .then((doc) => {
         setTitle(doc.title)
         setCollaborators(doc.collaborators)
-        // Pré-remplissage local si un modèle a été choisi et que le document
-        // vient d'être créé (personne n'a encore écrit dedans via Yjs)
+        // Pré-remplissage local si un modèle a été choisi : uniquement pour un
+        // document tout juste créé, où il n'existe encore aucun historique
+        // Yjs côté serveur avec lequel entrer en conflit.
         if (state?.template && TEMPLATES[state.template] && editor.isEmpty) {
           editor.commands.setContent(TEMPLATES[state.template])
-        } else if (doc.content && editor.isEmpty) {
-          editor.commands.setContent(doc.content)
         }
       })
       .catch(() => setError('Impossible de charger le document'))
