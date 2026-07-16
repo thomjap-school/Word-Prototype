@@ -23,10 +23,6 @@ async def visitor(request: Request):
 app.include_router(auth.router)
 app.include_router(documents.router)
 
-allowed_origins = os.getenv(
-    "CORS_ALLOWED_ORIGINS", "http://localhost:5173"
-    ).split(",")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:5173").split(","),
