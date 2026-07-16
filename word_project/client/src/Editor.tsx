@@ -18,7 +18,6 @@ import {
   type Collaborator,
 } from './documentService'
 
-const fullName = localStorage.getItem("fullName") || "Invité";
 // Même origine que la page (protocole + host) : passe par le proxy Vite
 // '/collab-ws' -> collab:1234, ce qui permet de tout exposer via un seul
 // tunnel ngrok (voir vite.config.ts). VITE_COLLAB_WS_URL reste possible en
@@ -28,10 +27,6 @@ const WEBSOCKET_URL =
   `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/collab-ws`
 
 const USER_COLORS = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#f472b6']
-const currentUser = {
-  name: fullName.charAt(0).toUpperCase(),
-  color: USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)],
-};
 
 const TEMPLATES: Record<string, string> = {
   'Rapport': `
@@ -103,6 +98,16 @@ function Editor() {
   const [status, setStatus] = useState<ConnectionStatus>('connecting')
   const [shareOpen, setShareOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Lu au montage (pas au chargement du module) pour refléter le fullName
+  // stocké après le login, pas un cache figé depuis avant la connexion.
+  const currentUser = useMemo(() => {
+    const fullName = localStorage.getItem('fullName') || 'Invité'
+    return {
+      name: fullName.charAt(0).toUpperCase(),
+      color: USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)],
+    }
+  }, [])
 
   // Suit l'état réel de la connexion WebSocket
   useEffect(() => {
