@@ -29,6 +29,9 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register({ email, password, full_name: fullName || undefined });
+
+      localStorage.setItem("fullName", fullName);
+
       navigate("/login", { state: { registered: true } });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Échec de l'inscription");

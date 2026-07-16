@@ -18,13 +18,14 @@ import {
   type Collaborator,
 } from './documentService'
 
+const fullName = localStorage.getItem("fullName") || "Invité";
 const WEBSOCKET_URL = import.meta.env.VITE_COLLAB_WS_URL || 'ws://localhost:1234'
 
 const USER_COLORS = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#f472b6']
 const currentUser = {
-  name: `Invité ${Math.floor(Math.random() * 1000)}`,
+  name: fullName.charAt(0).toUpperCase(),
   color: USER_COLORS[Math.floor(Math.random() * USER_COLORS.length)],
-}
+};
 
 const TEMPLATES: Record<string, string> = {
   'Rapport': `
