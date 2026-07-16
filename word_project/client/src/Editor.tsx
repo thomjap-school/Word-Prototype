@@ -19,7 +19,13 @@ import {
 } from './documentService'
 
 const fullName = localStorage.getItem("fullName") || "Invité";
-const WEBSOCKET_URL = import.meta.env.VITE_COLLAB_WS_URL || 'ws://localhost:1234'
+// Même origine que la page (protocole + host) : passe par le proxy Vite
+// '/collab-ws' -> collab:1234, ce qui permet de tout exposer via un seul
+// tunnel ngrok (voir vite.config.ts). VITE_COLLAB_WS_URL reste possible en
+// override explicite si besoin de pointer ailleurs.
+const WEBSOCKET_URL =
+  import.meta.env.VITE_COLLAB_WS_URL ||
+  `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/collab-ws`
 
 const USER_COLORS = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#f472b6']
 const currentUser = {

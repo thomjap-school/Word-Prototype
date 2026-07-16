@@ -15,6 +15,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
+      '/collab-ws': {
+        target: 'ws://collab:1234',
+        ws: true,
+        changeOrigin: true,
+      },
     },
   },
 })
