@@ -10,7 +10,7 @@ import FontFamily from '@tiptap/extension-font-family'
 import Toolbar from './Toolbar'
 import ShareDialog from './Sharedialog'
 import ExportImportMenu from './Exportimportmenu'
-import { ArrowLeft, Save, LoaderCircle, Users } from 'lucide-react'
+import { ArrowLeft, Save, LoaderCircle, Users, Check } from 'lucide-react'
 import {
   getDocument,
   createDocument,
@@ -56,6 +56,7 @@ function Editor() {
   const [collaborators, setCollaborators] = useState<Collaborator[]>([])
   const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
+  const [justSaved, setJustSaved] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
 
   const [, forceUpdate] = useState(0)
@@ -112,13 +113,22 @@ function Editor() {
           updateDocumentTitle(Number(id), title),
           updateDocumentContent(Number(id), editor.getJSON()),
         ])
+        setJustSaved(true)
+        setTimeout(() => setJustSaved(false), 2000)
       }
     } finally {
       setSaving(false)
     }
   }
 
-  if (!editor || loading) return null
+  if (!editor || loading) {
+    return (
+      <div className="editor-loading">
+        <span className="editor-loading-cursor" />
+        loading_document...
+      </div>
+    )
+  }
 
   return (
     <div className="page-shell">
@@ -156,6 +166,13 @@ function Editor() {
                 </span>
               )}
             </button>
+          )}
+
+          {justSaved && (
+            <span className="editor-saved-hint">
+              <Check size={12} />
+              enregistré
+            </span>
           )}
 
           <button onClick={handleSave} disabled={saving} className="editor-save-btn">
