@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { LoaderCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { joinViaShareLink } from "./documentService";
 
 export default function JoinPage() {
@@ -21,6 +21,7 @@ export default function JoinPage() {
     <div className="page-shell join-page-center">
       {error ? (
         <div className="join-error-wrap">
+          <AlertCircle className="w-5 h-5 text-red-500 mx-auto mb-2" />
           <p className="join-error-text">{error}</p>
           <button onClick={() => navigate("/")} className="join-error-link">
             Retour à l'accueil
@@ -28,8 +29,8 @@ export default function JoinPage() {
         </div>
       ) : (
         <div className="join-loading">
-          <LoaderCircle className="w-4 h-4 animate-spin" />
-          Connexion au document...
+          <span className="editor-loading-cursor" />
+          connexion_au_document...
         </div>
       )}
     </div>

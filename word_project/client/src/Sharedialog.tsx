@@ -104,9 +104,9 @@ export default function ShareDialog({
         </button>
         {linkError && <p className="share-link-error">{linkError}</p>}
 
-        {collaborators.length > 0 && (
-          <div className="share-collab-section">
-            <p className="share-collab-label">Collaborateurs</p>
+        <div className="share-collab-section">
+          <p className="share-collab-label">Collaborateurs</p>
+          {collaborators.length > 0 ? (
             <div className="share-collab-list">
               {collaborators.map((c) => (
                 <div key={c.id} className="share-collab-item">
@@ -121,10 +121,11 @@ export default function ShareDialog({
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-sm text-gray-400">Personne d'autre n'a encore accès.</p>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-
