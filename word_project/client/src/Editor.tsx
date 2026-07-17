@@ -5,6 +5,8 @@ import StarterKit from '@tiptap/starter-kit'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
+import { TextStyle } from '@tiptap/extension-text-style'
+import FontFamily from '@tiptap/extension-font-family'
 import Toolbar from './Toolbar'
 import ShareDialog from './Sharedialog'
 import ExportImportMenu from './Exportimportmenu'
@@ -56,17 +58,24 @@ function Editor() {
   const [saving, setSaving] = useState(false)
   const [shareOpen, setShareOpen] = useState(false)
 
+  const [, forceUpdate] = useState(0)
+
   const editor = useEditor({
     immediatelyRender: false,
+    autofocus: true,
     extensions: [
       StarterKit,
       Underline,
+      TextStyle,
+      FontFamily,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({
         placeholder: 'Commence à écrire ici...',
       }),
     ],
     content: '',
+    onSelectionUpdate: () => forceUpdate((n) => n + 1),
+    onTransaction: () => forceUpdate((n) => n + 1),
   })
 
   // Nouveau document : pré-remplissage local uniquement, rien envoyé au serveur
