@@ -36,6 +36,10 @@ async function parseErrorOrJson(res: Response) {
   return data;
 }
 
+function storeFullName(user: UserOut) {
+  localStorage.setItem("fullName", user.full_name || user.email);
+}
+
 export async function login(payload: LoginPayload): Promise<string> {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
@@ -44,6 +48,7 @@ export async function login(payload: LoginPayload): Promise<string> {
   });
   const data = await parseErrorOrJson(res);
   localStorage.setItem("token", data.access_token);
+  storeFullName(await getCurrentUser());
   return data.access_token;
 }
 
@@ -53,7 +58,9 @@ export async function register(payload: RegisterPayload): Promise<UserOut> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  return parseErrorOrJson(res);
+  const user = await parseErrorOrJson(res);
+  storeFullName(user);
+  return user;
 }
 
 function authHeaders() {
@@ -76,7 +83,9 @@ export async function updateProfile(payload: ProfileUpdatePayload): Promise<User
     headers: authHeaders(),
     body: JSON.stringify(payload),
   });
-  return parseErrorOrJson(res);
+  const user = await parseErrorOrJson(res);
+  storeFullName(user);
+  return user;
 }
 
 export async function changePassword(payload: PasswordChangePayload): Promise<void> {
@@ -93,6 +102,7 @@ export async function changePassword(payload: PasswordChangePayload): Promise<vo
 
 export function logout() {
   localStorage.removeItem("token");
+  localStorage.removeItem("fullName");
 }
 
 export function getToken(): string | null {

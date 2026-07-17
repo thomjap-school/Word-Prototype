@@ -15,8 +15,11 @@ from app import models
 
 load_dotenv()
 
-# Configuration JWT — en prod ce secret devrait être dans .env
-SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-ne-pas-utiliser-en-prod")
+# Configuration JWT — pas de fallback : un secret par défaut connu dans le
+# repo permettrait de forger des tokens valides pour n'importe quel compte.
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY manquant : copie server/.env.example vers server/.env et renseigne une valeur générée")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 

@@ -22,6 +22,13 @@ function formatDate(dateStr: string) {
 
 export default function Home() {
   const navigate = useNavigate()
+  const fullName = localStorage.getItem("fullName") || "Invité";
+  const initials = fullName
+    .trim()
+    .split(/\s+/)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
   const [documents, setDocuments] = useState<DocumentSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -97,8 +104,12 @@ export default function Home() {
             <LogOut size={14} />
             Déconnexion
           </button>
-          <div className="user-avatar" onClick={() => navigate('/profile')} title="Mon profil">
-            EM
+          <div
+            className="user-avatar"
+            onClick={() => navigate('/profile')}
+            title={fullName}
+          >
+            {initials}
           </div>
         </div>
 

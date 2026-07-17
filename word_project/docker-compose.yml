@@ -6,7 +6,7 @@ services:
     env_file:
       - ./server/.env
     environment:
-      - INTERNAL_SECRET=${INTERNAL_SECRET:-dev-internal-secret-change-me}
+      - "INTERNAL_SECRET=${INTERNAL_SECRET:?INTERNAL_SECRET manquant, copie .env.example vers .env a la racine du projet}"
     volumes:
       - ./server:/app
 
@@ -23,7 +23,7 @@ services:
       - backend
     environment:
       - BACKEND_URL=http://backend:8000
-      - INTERNAL_SECRET=${INTERNAL_SECRET:-dev-internal-secret-change-me}
+      - "INTERNAL_SECRET=${INTERNAL_SECRET:?INTERNAL_SECRET manquant, copie .env.example vers .env a la racine du projet}"
 
   frontend:
     build: ./client
@@ -31,7 +31,6 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=/api
-      - VITE_COLLAB_WS_URL=ws://localhost:1234
     volumes:
       - ./client:/app
       - /app/node_modules
