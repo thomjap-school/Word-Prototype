@@ -12,3 +12,33 @@
 .tiptap:focus {
   outline: none;
 }
+
+/* Curseur des autres utilisateurs (extension-collaboration-caret) : sans ce
+   bloc, le <div> du label reste en display:block par défaut et s'étire sur
+   toute la largeur/hauteur disponible au lieu d'un petit drapeau compact. */
+.collaboration-carets__caret {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  border-color: inherit;
+  word-break: normal;
+  pointer-events: none;
+}
+
+.collaboration-carets__label {
+  position: absolute;
+  top: -1.4em;
+  left: -1px;
+  display: inline-block;
+  white-space: nowrap;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px 3px 3px 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: normal;
+  color: #fff;
+  user-select: none;
+  pointer-events: none;
+}
