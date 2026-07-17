@@ -40,6 +40,11 @@ export default function RegisterPage() {
   return (
     <div className="auth-shell">
       <div className="auth-card">
+        <div className="auth-eyebrow">
+          <span className="auth-eyebrow-dot" />
+          word_prototype // auth
+        </div>
+
         <h1 className="auth-title">Créer un compte</h1>
         <p className="auth-subtitle">Rejoignez votre espace de travail</p>
 
