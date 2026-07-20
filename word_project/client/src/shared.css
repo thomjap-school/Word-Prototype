@@ -168,6 +168,10 @@ body {
   @apply text-xs text-gray-400 text-center py-4;
 }
 
+.home-header-center {
+  @apply flex items-center gap-3;
+}
+
 .search-box {
   @apply flex items-center gap-2 bg-gray-100 border border-transparent rounded-lg px-3 h-9 w-72 transition-colors;
 }

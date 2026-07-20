@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft, LoaderCircle, LogOut, Trash2 } from 'lucide-react'
 import { logout } from './authService'
 import { listDocuments, createDocument, deleteDocument, type DocumentSummary } from './documentService'
+import MusicPlayer from './MusicPlayer'
 
 const TEMPLATE_TITLES: Record<string, string> = {
   'Document vide': 'Document sans titre',
@@ -90,13 +91,17 @@ export default function Home() {
           <span className="app-logo-text">Word Prototype</span>
         </div>
 
-        <div className="search-box">
-          <Search size={14} className="text-gray-400 shrink-0" />
-          <input
-            type="text"
-            placeholder="Rechercher un document..."
-            className="search-input"
-          />
+        <div className="home-header-center">
+          <MusicPlayer />
+
+          <div className="search-box">
+            <Search size={14} className="text-gray-400 shrink-0" />
+            <input
+              type="text"
+              placeholder="Rechercher un document..."
+              className="search-input"
+            />
+          </div>
         </div>
 
         <div className="home-header-actions">
