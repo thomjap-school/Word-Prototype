@@ -44,11 +44,16 @@ export default function LoginPage() {
   return (
     <div className="auth-shell">
       <div className="auth-card">
+        <div className="auth-eyebrow">
+          <span className="auth-eyebrow-dot" />
+          word_prototype // auth
+        </div>
+
         <h1 className="auth-title">Connexion</h1>
         <p className="auth-subtitle">Accédez à votre espace de travail</p>
 
         {justRegistered && !error && (
-          <div className="alert alert--success">
+          <div className="alert alert--success alert--with-icon">
             Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse avant de te connecter.
           </div>
         )}

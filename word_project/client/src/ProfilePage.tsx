@@ -3,6 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, Lock, LoaderCircle, Check } from "lucide-react";
 import { getCurrentUser, updateProfile, changePassword, type UserOut } from "./authService";
 
+function getInitials(fullName: string | null, email: string) {
+  if (fullName && fullName.trim()) {
+    const parts = fullName.trim().split(/\s+/);
+    return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
+  }
+  return email.slice(0, 2).toUpperCase();
+}
+
 export default function ProfilePage() {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserOut | null>(null);
@@ -79,7 +87,12 @@ export default function ProfilePage() {
   };
 
   if (loadingUser) {
-    return <div className="page-shell" />;
+    return (
+      <div className="editor-loading">
+        <span className="editor-loading-cursor" />
+        loading_profile...
+      </div>
+    );
   }
 
   return (
@@ -94,17 +107,28 @@ export default function ProfilePage() {
       <main className="home-main">
         <p className="section-label">Mon profil</p>
 
+        {user && (
+          <div className="profile-header">
+            <div className="profile-avatar-lg">
+              {getInitials(user.full_name, user.email)}
+            </div>
+            <div>
+              <p className="profile-name">{user.full_name || user.email}</p>
+              <p className="profile-meta">
+                membre depuis le {new Date(user.created_at).toLocaleDateString("fr-FR")}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Infos du compte */}
-        <div className="auth-card mb-6">
-          <h2 className="auth-title text-lg">Informations</h2>
-          <p className="auth-subtitle">
-            Membre depuis le{" "}
-            {user && new Date(user.created_at).toLocaleDateString("fr-FR")}
-          </p>
+        <div className="profile-card mb-6">
+          <h2 className="profile-section-title">Informations</h2>
+          <p className="auth-subtitle">Modifie ton nom ou ton adresse email</p>
 
           {profileError && <div className="alert alert--error">{profileError}</div>}
           {profileSuccess && (
-            <div className="alert alert--success flex items-center gap-2">
+            <div className="alert alert--success alert--with-icon">
               <Check className="w-4 h-4" />
               Profil mis à jour.
             </div>
@@ -150,13 +174,13 @@ export default function ProfilePage() {
         </div>
 
         {/* Mot de passe */}
-        <div className="auth-card">
-          <h2 className="auth-title text-lg">Mot de passe</h2>
+        <div className="profile-card">
+          <h2 className="profile-section-title">Mot de passe</h2>
           <p className="auth-subtitle">Change ton mot de passe de connexion</p>
 
           {passwordError && <div className="alert alert--error">{passwordError}</div>}
           {passwordSuccess && (
-            <div className="alert alert--success flex items-center gap-2">
+            <div className="alert alert--success alert--with-icon">
               <Check className="w-4 h-4" />
               Mot de passe mis à jour.
             </div>

@@ -6,6 +6,7 @@ import { Placeholder } from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
+import FontFamily from '@tiptap/extension-font-family'
 import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import * as Y from 'yjs'
@@ -140,6 +141,7 @@ function Editor() {
           TextAlign.configure({ types: ['heading', 'paragraph'] }),
           TextStyle,
           Color,
+          FontFamily,
           Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
           Collaboration.configure({ document: ydoc }),
           CollaborationCaret.configure({ provider, user: currentUser }),
