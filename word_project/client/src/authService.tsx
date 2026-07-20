@@ -64,6 +64,18 @@ export async function register(payload: RegisterPayload): Promise<UserOut> {
   return user;
 }
 
+export async function loginWithGoogle(credential: string): Promise<string> {
+  const res = await fetch(`${API_URL}/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ credential }),
+  });
+  const data = await parseErrorOrJson(res);
+  localStorage.setItem("token", data.access_token);
+  storeFullName(await getCurrentUser());
+  return data.access_token;
+}
+
 export async function verifyEmail(token: string): Promise<{ message: string }> {
   const res = await fetch(`${API_URL}/auth/verify-email?token=${encodeURIComponent(token)}`);
   return parseErrorOrJson(res);

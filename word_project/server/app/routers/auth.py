@@ -109,6 +109,36 @@ def resend_verification(
     return {"message": "Si ce compte existe et n'est pas encore confirmé, un email vient d'être envoyé."}
 
 
+@router.post("/google", response_model=schemas.Token)
+def login_with_google(payload: schemas.GoogleAuthRequest, db: Session = Depends(get_db)):
+    google_user = security.verify_google_id_token(payload.credential)
+
+    user = db.query(models.User).filter(
+        models.User.google_id == google_user["google_id"]
+    ).first()
+    if not user:
+        user = db.query(models.User).filter(
+            models.User.email == google_user["email"]
+        ).first()
+
+    if user:
+        user.google_id = google_user["google_id"]
+        user.is_verified = True
+    else:
+        user = models.User(
+            email=google_user["email"],
+            full_name=google_user["full_name"],
+            google_id=google_user["google_id"],
+            is_verified=True,
+        )
+        db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    access_token = security.create_access_token(data={"sub": str(user.id)})
+    return {"access_token": access_token}
+
+
 @router.get("/me", response_model=schemas.UserOut)
 def read_current_user(
     current_user: models.User = Depends(security.get_current_user)
@@ -144,7 +174,9 @@ def change_password(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(security.get_current_user),
 ):
-    if not security.verify_password(payload.current_password, current_user.hashed_password):
+    if not current_user.hashed_password or not security.verify_password(
+        payload.current_password, current_user.hashed_password
+    ):
         raise HTTPException(status_code=401, detail="Mot de passe actuel incorrect")
     if len(payload.new_password) < 8:
         raise HTTPException(

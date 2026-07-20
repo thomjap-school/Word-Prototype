@@ -7,6 +7,8 @@ from jose import jwt, JWTError
 from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 import os
 from dotenv import load_dotenv
 
@@ -66,6 +68,25 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+
+
+def verify_google_id_token(credential: str) -> dict:
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=500, detail="GOOGLE_CLIENT_ID manquant côté serveur")
+    try:
+        payload = google_id_token.verify_oauth2_token(
+            credential, google_requests.Request(), GOOGLE_CLIENT_ID
+        )
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Jeton Google invalide")
+    return {
+        "email": payload["email"],
+        "full_name": payload.get("name"),
+        "google_id": payload["sub"],
+    }
 
 
 # Utilisé par le serveur de collaboration (Hocuspocus) pour lire/écrire les

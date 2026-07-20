@@ -36,6 +36,10 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class GoogleAuthRequest(BaseModel):
+    credential: str
+
+
 class ResendVerificationRequest(BaseModel):
     email: EmailStr
 

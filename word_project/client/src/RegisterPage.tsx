@@ -2,6 +2,7 @@ import { useState, type SyntheticEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { register } from "./authService";
+import GoogleSignInButton from "./GoogleSignInButton";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -139,6 +140,8 @@ export default function RegisterPage() {
             Créer mon compte
           </button>
         </form>
+
+        <GoogleSignInButton />
 
         <p className="auth-footer">
           Déjà un compte ?{" "}

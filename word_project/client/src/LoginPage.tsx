@@ -2,6 +2,7 @@ import { useState, type SyntheticEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { login, resendVerification } from "./authService";
+import GoogleSignInButton from "./GoogleSignInButton";
 
 const UNVERIFIED_MESSAGE = "Confirme ton email avant de te connecter";
 
@@ -129,6 +130,8 @@ export default function LoginPage() {
             Se connecter
           </button>
         </form>
+
+        <GoogleSignInButton />
 
         <p className="auth-footer">
           Pas encore de compte ?{" "}
