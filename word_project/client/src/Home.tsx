@@ -5,6 +5,7 @@ import { logout } from './authService'
 import { listDocuments, createDocument, deleteDocument, type DocumentSummary } from './documentService'
 import MusicPlayer from './MusicPlayer'
 import MobileMenu from './MobileMenu'
+import HomeDecor from './HomeDecor'
 
 const TEMPLATE_TITLES: Record<string, string> = {
   'Document vide': 'Document sans titre',
@@ -81,6 +82,8 @@ export default function Home() {
 
   return (
     <div className="page-shell">
+
+      <HomeDecor />
 
       {/* Header */}
       <header className="app-header app-header--between">

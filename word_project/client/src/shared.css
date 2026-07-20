@@ -808,3 +808,116 @@ body {
   @apply flex items-center gap-2 text-gray-400 text-sm;
   font-family: var(--font-mono);
 }
+
+/* ==========================================================================
+   Formes géométriques décoratives animées (Home)
+   Couche de fond, non interactive, s'adapte au thème dynamique.
+   ========================================================================== */
+.home-decor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Le contenu de la Home passe au-dessus du décor */
+.home-main {
+  position: relative;
+  z-index: 1;
+}
+
+.deco {
+  position: absolute;
+  display: block;
+  opacity: 0.5;
+  will-change: transform;
+}
+
+/* --- Formes de base --- */
+.deco--circle {
+  border-radius: 9999px;
+  background: var(--color-primary);
+  opacity: 0.12;
+}
+.deco--ring {
+  border-radius: 9999px;
+  border: 2px solid var(--color-primary-border);
+  opacity: 0.5;
+}
+.deco--square {
+  border-radius: 10px;
+  border: 2px solid var(--color-primary-border);
+  opacity: 0.45;
+}
+.deco--triangle {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  opacity: 0.5;
+}
+.deco--blob {
+  border-radius: 9999px;
+  background: var(--color-primary-light);
+  filter: blur(60px);
+  opacity: 0.7;
+}
+
+/* --- Placement côté gauche --- */
+.deco--l1 { width: 90px;  height: 90px; top: 18%; left: 4%;  animation: deco-float 11s ease-in-out infinite; }
+.deco--l2 { width: 60px;  height: 60px; top: 55%; left: 7%;  animation: deco-drift 15s ease-in-out infinite; }
+.deco--l3 { width: 46px;  height: 46px; top: 78%; left: 3%;  animation: deco-spin 18s linear infinite; }
+.deco--l4 {
+  border-width: 0 26px 44px 26px;
+  border-color: transparent transparent var(--color-primary-border) transparent;
+  top: 34%; left: 11%;
+  animation: deco-drift 13s ease-in-out infinite;
+}
+
+/* --- Placement côté droit --- */
+.deco--r1 { width: 110px; height: 110px; top: 22%; right: 4%;  animation: deco-drift 16s ease-in-out infinite; }
+.deco--r2 { width: 70px;  height: 70px;  top: 60%; right: 6%;  animation: deco-float 12s ease-in-out infinite; }
+.deco--r3 { width: 52px;  height: 52px;  top: 40%; right: 10%; animation: deco-spin 22s linear infinite reverse; }
+.deco--r4 {
+  border-width: 0 22px 38px 22px;
+  border-color: transparent transparent var(--color-primary) transparent;
+  opacity: 0.14;
+  top: 82%; right: 5%;
+  animation: deco-float 14s ease-in-out infinite;
+}
+
+/* --- Halos d'ambiance --- */
+.deco--b1 { width: 320px; height: 320px; top: -80px;  left: -100px; animation: deco-pulse 20s ease-in-out infinite; }
+.deco--b2 { width: 360px; height: 360px; bottom: -120px; right: -120px; animation: deco-pulse 24s ease-in-out infinite; }
+
+/* --- Animations --- */
+@keyframes deco-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-26px); }
+}
+@keyframes deco-drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50%      { transform: translate(18px, -18px) rotate(12deg); }
+}
+@keyframes deco-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes deco-pulse {
+  0%, 100% { transform: scale(1);    opacity: 0.6; }
+  50%      { transform: scale(1.15); opacity: 0.85; }
+}
+
+/* Tablette : on réduit la taille et le nombre de formes latérales */
+@media (max-width: 1024px) {
+  .deco--l4, .deco--r3 { display: none; }
+  .deco { opacity: 0.4; }
+}
+
+/* Mobile : formes latérales discrètes, on garde surtout les halos d'ambiance */
+@media (max-width: 640px) {
+  .deco--l2, .deco--l3, .deco--r1, .deco--r4 { display: none; }
+  .deco--l1 { width: 60px; height: 60px; left: -10px; }
+  .deco--r2 { width: 54px; height: 54px; right: -6px; }
+  .deco--b1, .deco--b2 { opacity: 0.5; }
+}
