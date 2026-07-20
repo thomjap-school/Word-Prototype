@@ -2,6 +2,7 @@ import { useEffect, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, Lock, LoaderCircle, Check } from "lucide-react";
 import { getCurrentUser, updateProfile, changePassword, type UserOut } from "./authService";
+import MusicPlayer from "./MusicPlayer";
 
 function getInitials(fullName: string | null, email: string) {
   if (fullName && fullName.trim()) {
@@ -102,6 +103,10 @@ export default function ProfilePage() {
           <ArrowLeft size={15} />
           Retour
         </button>
+
+        <div className="app-header-center">
+          <MusicPlayer />
+        </div>
       </header>
 
       <main className="home-main">
