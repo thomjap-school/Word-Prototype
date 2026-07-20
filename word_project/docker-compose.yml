@@ -31,6 +31,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_API_URL=/api
+      - VITE_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     volumes:
       - ./client:/app
       - /app/node_modules

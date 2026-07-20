@@ -1,9 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useLocation, useParams } from 'react-router-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
+import { TextStyle } from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
+import FontFamily from '@tiptap/extension-font-family'
 import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import * as Y from 'yjs'
@@ -15,6 +18,7 @@ import { ArrowLeft, LoaderCircle, Users } from 'lucide-react'
 import {
   getDocument,
   updateDocumentTitle,
+  updateDocumentContent,
   type Collaborator,
 } from './documentService'
 
@@ -98,6 +102,7 @@ function Editor() {
   const [status, setStatus] = useState<ConnectionStatus>('connecting')
   const [shareOpen, setShareOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
   // Lu au montage (pas au chargement du module) pour refléter le fullName
   // stocké après le login, pas un cache figé depuis avant la connexion.
@@ -134,6 +139,9 @@ function Editor() {
       ? [
           StarterKit.configure({ undoRedo: false }), // historique géré par Yjs
           TextAlign.configure({ types: ['heading', 'paragraph'] }),
+          TextStyle,
+          Color,
+          FontFamily,
           Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
           Collaboration.configure({ document: ydoc }),
           CollaborationCaret.configure({ provider, user: currentUser }),
@@ -173,6 +181,51 @@ function Editor() {
     }
   }
 
+  // Ctrl/Cmd+S : le contenu est déjà synchronisé en continu via Yjs, mais ça
+  // prend un snapshot REST (titre + contenu) pour donner un retour explicite
+  // à l'utilisateur, comme dans Word. Pas de nouvelle route : réutilise
+  // updateDocumentTitle / updateDocumentContent déjà exposées par l'API.
+  const handleSave = useCallback(async () => {
+    if (!id || !editor) return
+    setSaveState('saving')
+    try {
+      await Promise.all([
+        updateDocumentTitle(Number(id), title),
+        updateDocumentContent(Number(id), editor.getJSON()),
+      ])
+      setSaveState('saved')
+    } catch {
+      setSaveState('error')
+      setError('Erreur lors de la sauvegarde')
+    } finally {
+      setTimeout(() => setSaveState('idle'), 2000)
+    }
+  }, [id, editor, title])
+
+  // Ctrl/Cmd+P : aucune route backend nécessaire, on imprime la page via
+  // l'API navigateur. La mise en forme (masquage de la barre d'outils, etc.)
+  // est gérée par les règles @media print dans shared.css.
+  const handlePrint = useCallback(() => {
+    window.print()
+  }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const mod = e.ctrlKey || e.metaKey
+      if (!mod) return
+      const key = e.key.toLowerCase()
+      if (key === 's') {
+        e.preventDefault()
+        handleSave()
+      } else if (key === 'p') {
+        e.preventDefault()
+        handlePrint()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleSave, handlePrint])
+
   if (!editor) {
     return (
       <div className="page-shell flex items-center justify-center min-h-screen">
@@ -201,6 +254,16 @@ function Editor() {
           <span className={`editor-status editor-status--${status}`}>
             {status === 'connected' ? 'Synchronisé' : status === 'connecting' ? 'Connexion...' : 'Hors ligne'}
           </span>
+
+          {saveState !== 'idle' && (
+            <span
+              className={`editor-status editor-status--${
+                saveState === 'saving' ? 'connecting' : saveState === 'saved' ? 'connected' : 'disconnected'
+              }`}
+            >
+              {saveState === 'saving' ? 'Enregistrement...' : saveState === 'saved' ? 'Enregistré ✓' : 'Erreur'}
+            </span>
+          )}
 
           <ExportImportMenu editor={editor} title={title} />
 

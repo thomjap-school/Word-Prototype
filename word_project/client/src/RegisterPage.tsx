@@ -2,6 +2,7 @@ import { useState, type SyntheticEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { register } from "./authService";
+import GoogleSignInButton from "./GoogleSignInButton";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ export default function RegisterPage() {
     try {
       await register({ email, password, full_name: fullName || undefined });
 
-      navigate("/login", { state: { registered: true } });
+      navigate("/login", { state: { registered: true } }); // le message sur LoginPage invite à vérifier ses emails
     } catch (err) {
       setError(err instanceof Error ? err.message : "Échec de l'inscription");
     } finally {
@@ -41,6 +42,11 @@ export default function RegisterPage() {
   return (
     <div className="auth-shell">
       <div className="auth-card">
+        <div className="auth-eyebrow">
+          <span className="auth-eyebrow-dot" />
+          word_prototype // auth
+        </div>
+
         <h1 className="auth-title">Créer un compte</h1>
         <p className="auth-subtitle">Rejoignez votre espace de travail</p>
 
@@ -139,6 +145,8 @@ export default function RegisterPage() {
             Créer mon compte
           </button>
         </form>
+
+        <GoogleSignInButton />
 
         <p className="auth-footer">
           Déjà un compte ?{" "}

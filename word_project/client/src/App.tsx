@@ -3,6 +3,7 @@ import Home from './Home'
 import EditorPage from './EditorPage'
 import LoginPage from './LoginPage'
 import RegisterPage from './RegisterPage'
+import VerifyEmailPage from './VerifyEmailPage'
 import ProfilePage from './ProfilePage'
 import JoinPage from './Joinpage'
 import ProtectedRoute from './ProtectedRoute'
@@ -14,6 +15,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Home />} />
           <Route path="/editor/:id" element={<EditorPage />} />

@@ -9,6 +9,25 @@
   --color-bg: #eff6ff;
   --color-text-strong: #1e3a8a;
   --color-on-primary: #ffffff;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-primary-border);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ==========================================================================
@@ -23,7 +42,8 @@
    Header (Home / EditorPage)
    ========================================================================== */
 .app-header {
-  @apply bg-white border-b border-gray-200 px-8 h-14 flex items-center sticky top-0 z-10;
+  @apply bg-white border-b border-gray-200 px-8 h-14 flex items-center sticky top-0 z-20;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 .app-header--between {
   @apply justify-between;
@@ -32,26 +52,141 @@
   @apply flex items-center gap-2;
 }
 .app-logo-icon {
-  @apply w-7 h-7 rounded-md flex items-center justify-center;
+  @apply w-7 h-7 rounded-md flex items-center justify-center transition-transform;
   background-color: var(--color-primary);
   color: var(--color-on-primary);
 }
 .app-logo-text {
-  @apply text-sm font-medium;
+  @apply text-sm font-semibold tracking-tight;
   color: var(--color-text-strong);
+}
+.app-header-center {
+  @apply hidden sm:flex;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ==========================================================================
+   Lecteur de musique (header)
+   ========================================================================== */
+.music-player {
+  @apply flex flex-col justify-center gap-1 bg-gray-100 border border-gray-200 rounded-2xl pl-1 pr-2 py-1 w-[300px];
+}
+.music-player-row {
+  @apply flex items-center gap-0.5;
+}
+.music-player-btn {
+  @apply w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-white hover:text-gray-900 transition-colors shrink-0;
+}
+.music-player-btn--play {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.music-player-btn--play:hover {
+  background-color: var(--color-primary-hover);
+  color: var(--color-on-primary);
+}
+.music-player-info {
+  @apply flex items-center gap-1.5 pl-2 ml-1 border-l border-gray-200 text-xs text-gray-600 min-w-0 flex-1;
+}
+.music-player-track {
+  @apply truncate;
+}
+.music-player-artist {
+  @apply text-gray-400;
+}
+
+/* Barre de progression + timer */
+.music-player-seek {
+  @apply flex items-center gap-1.5 px-1;
+}
+.music-player-time {
+  @apply text-[10px] leading-none text-gray-400 tabular-nums w-7 shrink-0;
+}
+.music-player-time:last-child {
+  @apply text-right;
+}
+.music-player-range {
+  @apply w-full h-1 rounded-full appearance-none cursor-pointer bg-gray-300;
+  accent-color: var(--color-primary);
+}
+.music-player-range::-webkit-slider-runnable-track {
+  @apply h-1 rounded-full bg-gray-300;
+}
+.music-player-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  margin-top: -3px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  cursor: pointer;
+}
+.music-player-range::-moz-range-track {
+  @apply h-1 rounded-full bg-gray-300;
+}
+.music-player-range::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  cursor: pointer;
+}
+
+/* Recherche de titre */
+.music-search-wrap {
+  @apply relative shrink-0;
+}
+.music-search-popover {
+  @apply absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-20 w-64 p-2;
+}
+.music-search-input {
+  @apply w-full text-sm bg-gray-100 border border-gray-200 rounded-md px-2 py-1.5 outline-none;
+}
+.music-search-input:focus {
+  border-color: var(--color-primary-border);
+}
+.music-search-results {
+  @apply mt-2 max-h-64 overflow-y-auto flex flex-col gap-0.5;
+}
+.music-search-item {
+  @apply flex flex-col items-start text-left px-2 py-1.5 rounded-md hover:bg-gray-100 transition-colors;
+}
+.music-search-item--active {
+  background-color: var(--color-primary-light);
+}
+.music-search-item-title {
+  @apply text-xs font-medium text-gray-800 truncate w-full;
+}
+.music-search-item-artist {
+  @apply text-[11px] text-gray-400 truncate w-full;
+}
+.music-search-empty {
+  @apply text-xs text-gray-400 text-center py-4;
 }
 
 .search-box {
-  @apply flex items-center gap-2 bg-gray-100 border border-gray-200 rounded-lg px-3 h-9 w-72;
+  @apply flex items-center gap-2 bg-gray-100 border border-transparent rounded-lg px-3 h-9 w-72 transition-colors;
+}
+.search-box:focus-within {
+  @apply bg-white;
+  border-color: var(--color-primary-border);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 .search-input {
   @apply bg-transparent border-none outline-none text-sm text-gray-900 placeholder-gray-400 w-full;
 }
 
 .user-avatar {
-  @apply w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium cursor-pointer;
+  @apply w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium cursor-pointer transition-transform;
   background-color: var(--color-primary-light);
   color: var(--color-primary);
+}
+.user-avatar:hover {
+  transform: scale(1.06);
 }
 
 .logout-btn {
@@ -65,7 +200,8 @@
   @apply max-w-3xl mx-auto px-6 py-8;
 }
 .section-label {
-  @apply text-xs font-medium text-gray-400 uppercase tracking-widest mb-4;
+  @apply text-[11px] font-medium text-gray-400 uppercase tracking-widest mb-4;
+  font-family: var(--font-mono);
 }
 .section-label--tight {
   @apply mb-3;
@@ -75,7 +211,12 @@
   @apply grid grid-cols-4 gap-3 mb-8;
 }
 .template-card {
-  @apply flex flex-col items-center gap-2 p-4 rounded-xl border cursor-pointer transition border-gray-200 bg-white hover:bg-gray-50;
+  @apply flex flex-col items-center gap-2 p-4 rounded-xl border cursor-pointer border-gray-200 bg-white hover:bg-gray-50;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.template-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.18);
 }
 .template-card--featured {
   border-color: var(--color-primary-border);
@@ -84,7 +225,7 @@
   background-color: var(--color-primary-light);
 }
 .template-icon {
-  @apply text-gray-400;
+  @apply text-gray-400 transition-colors;
 }
 .template-icon--featured {
   color: var(--color-primary);
@@ -97,7 +238,10 @@
   @apply flex flex-col gap-0.5;
 }
 .doc-item {
-  @apply flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-white hover:shadow-sm transition;
+  @apply flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer hover:bg-white transition;
+}
+.doc-item:hover {
+  box-shadow: 0 2px 8px -4px rgba(0, 0, 0, 0.12);
 }
 .doc-icon-wrap {
   @apply w-9 h-9 rounded-lg flex items-center justify-center shrink-0;
@@ -110,7 +254,8 @@
   @apply text-sm font-medium text-gray-900 truncate ;
 }
 .doc-meta {
-  @apply flex items-center gap-1.5 text-xs text-gray-400 mt-0.5;
+  @apply flex items-center gap-1.5 text-[11px] text-gray-400 mt-0.5;
+  font-family: var(--font-mono);
 }
 .doc-badge {
   @apply text-xs font-medium text-green-700 bg-green-50 px-2 py-0.5 rounded-full;
@@ -118,6 +263,16 @@
 .doc-open {
   @apply flex items-center gap-1 text-xs font-medium opacity-0 group-hover:opacity-100 transition;
   color: var(--color-primary);
+}
+
+.empty-state {
+  @apply flex flex-col items-center justify-center gap-2 text-center py-12 px-4 rounded-xl border border-dashed border-gray-200;
+}
+.empty-state-title {
+  @apply text-sm font-medium text-gray-600;
+}
+.empty-state-subtitle {
+  @apply text-xs text-gray-400;
 }
 
 /* ==========================================================================
@@ -128,10 +283,27 @@
   background-color: var(--color-bg);
 }
 .auth-card {
-  @apply w-full max-w-sm bg-white rounded-xl shadow-sm border border-gray-200 p-8;
+  @apply w-full max-w-sm bg-white rounded-xl border border-gray-200 p-8;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 16px 40px -16px rgba(0, 0, 0, 0.14);
+}
+.auth-eyebrow {
+  @apply flex items-center gap-2 mb-5 text-[11px] uppercase tracking-widest text-gray-400;
+  font-family: var(--font-mono);
+}
+.auth-eyebrow-dot {
+  @apply w-1.5 h-1.5 rounded-full shrink-0;
+  background-color: var(--color-primary);
+  animation: auth-pulse 1.8s ease-in-out infinite;
+}
+@keyframes auth-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-eyebrow-dot { animation: none; }
 }
 .auth-title {
-  @apply text-2xl font-semibold mb-1;
+  @apply text-2xl font-semibold mb-1 tracking-tight;
   color: var(--color-text-strong);
 }
 .auth-subtitle {
@@ -161,26 +333,29 @@
   @apply absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400;
 }
 .form-input {
-  @apply w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none;
+  @apply w-full pl-9 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none transition-shadow;
 }
 .form-input:focus {
-  box-shadow: 0 0 0 2px var(--color-primary-border);
+  box-shadow: 0 0 0 3px var(--color-primary-border);
   border-color: transparent;
 }
 .form-input--with-toggle {
   @apply pr-9;
 }
 .input-toggle {
-  @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600;
+  @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors;
 }
 
 .btn-primary {
-  @apply w-full flex items-center justify-center gap-2 text-sm font-medium py-2 rounded-md transition-colors;
+  @apply w-full flex items-center justify-center gap-2 text-sm font-medium py-2 rounded-md transition-all;
   background-color: var(--color-primary);
   color: var(--color-on-primary);
 }
 .btn-primary:hover:not(:disabled) {
   background-color: var(--color-primary-hover);
+}
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
 }
 .btn-primary:disabled {
   @apply opacity-60;
@@ -190,7 +365,7 @@
   @apply mt-6 text-center text-sm text-gray-500;
 }
 .auth-link {
-  @apply hover:underline font-medium;
+  @apply hover:underline font-medium transition-colors;
   color: var(--color-primary);
 }
 
@@ -199,32 +374,77 @@
    ========================================================================== */
 .editor-topbar {
   @apply bg-white border-b border-gray-200 px-6 h-12 flex items-center justify-between sticky top-0 z-10;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 .editor-back-btn {
-  @apply flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition;
+  @apply flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors;
+}
+.editor-back-btn svg {
+  transition: transform 0.15s ease;
+}
+.editor-back-btn:hover svg {
+  transform: translateX(-2px);
 }
 .editor-title-input {
-  @apply text-sm font-medium bg-transparent border-none outline-none text-center w-64;
+  @apply text-sm font-medium bg-transparent border-none outline-none text-center rounded-md px-2 py-1 transition-colors;
   color: var(--color-text-strong);
-  
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   width: 300px;
 }
+.editor-title-input:hover {
+  @apply bg-gray-50;
+}
+.editor-title-input:focus {
+  background-color: var(--color-primary-light);
+}
 .editor-save-btn {
-  @apply flex items-center gap-1.5 text-sm font-medium px-3 h-8 rounded-lg transition;
+  @apply flex items-center gap-1.5 text-sm font-medium px-3 h-8 rounded-lg transition-all;
   background-color: var(--color-primary);
   color: var(--color-on-primary);
 }
 .editor-save-btn:hover {
   background-color: var(--color-primary-hover);
 }
+.editor-save-btn:active {
+  transform: scale(0.97);
+}
+.editor-saved-hint {
+  @apply text-[11px] text-gray-400 flex items-center gap-1;
+  font-family: var(--font-mono);
+}
 .editor-frame {
-  @apply max-w-3xl mx-auto mt-8 mb-16 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm;
+  @apply max-w-3xl mx-auto mt-8 mb-16 bg-white border border-gray-200 rounded-xl overflow-hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 20px 48px -20px rgba(0, 0, 0, 0.12);
 }
 .editor-body {
   @apply p-10 min-h-[700px];
+}
+.editor-body .tiptap {
+  line-height: 1.75;
+}
+.editor-body .tiptap h1 {
+  @apply mb-4 mt-2;
+}
+.editor-body .tiptap h2 {
+  @apply mb-3 mt-6;
+}
+.editor-body .tiptap p {
+  @apply mb-3;
+}
+
+.editor-loading {
+  @apply flex items-center justify-center min-h-screen gap-2 text-sm text-gray-400;
+  font-family: var(--font-mono);
+  background-color: var(--color-bg);
+}
+.editor-loading-cursor {
+  @apply inline-block w-1.5 h-4;
+  background-color: var(--color-primary);
+  animation: auth-pulse 1s ease-in-out infinite;
 }
 
 /* ==========================================================================
@@ -236,6 +456,9 @@
 .toolbar-btn {
   @apply w-8 h-8 flex items-center justify-center rounded transition text-gray-500 hover:bg-gray-100 border border-transparent;
 }
+.toolbar-btn:active {
+  transform: scale(0.94);
+}
 .toolbar-btn--active {
   border-color: var(--color-primary-border);
   background-color: var(--color-primary-light);
@@ -243,6 +466,13 @@
 }
 .toolbar-divider {
   @apply w-px h-5 bg-gray-200 mx-1.5;
+}
+.toolbar-font-select {
+  @apply text-sm text-gray-700 border border-gray-200 rounded px-2 h-8 bg-white outline-none cursor-pointer transition-shadow;
+}
+.toolbar-font-select:focus {
+  box-shadow: 0 0 0 3px var(--color-primary-border);
+  border-color: transparent;
 }
 
 /* Color picker */
@@ -303,30 +533,45 @@
    Partage (ShareDialog)
    ========================================================================== */
 .share-overlay {
-  @apply fixed inset-0 bg-black/30 flex items-center justify-center z-50 px-4;
+  @apply fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 px-4;
+  animation: overlay-fade-in 0.15s ease;
 }
 .share-modal {
-  @apply bg-white rounded-xl shadow-lg border border-gray-200 w-full max-w-sm p-6;
+  @apply bg-white rounded-xl border border-gray-200 w-full max-w-sm p-6;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 48px -16px rgba(0, 0, 0, 0.2);
+  animation: modal-scale-in 0.18s ease;
+}
+@keyframes overlay-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-scale-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .share-modal-header {
   @apply flex items-center justify-between mb-4;
 }
 .share-modal-title {
-  @apply text-lg font-semibold text-gray-900;
+  @apply text-lg font-semibold;
+  color: var(--color-text-strong);
 }
 .share-modal-close {
-  @apply text-gray-400 hover:text-gray-600;
+  @apply text-gray-400 hover:text-gray-600 transition-colors;
 }
 .share-invite-form {
   @apply flex gap-2 mb-2;
 }
 .share-invite-btn {
-  @apply flex items-center gap-1.5 text-white text-sm font-medium px-3 rounded-md transition-colors disabled:opacity-60;
+  @apply flex items-center gap-1.5 text-white text-sm font-medium px-3 rounded-md transition-all disabled:opacity-60;
   background-color: var(--color-primary);
   color: var(--color-on-primary);
 }
 .share-invite-btn:hover:not(:disabled) {
   background-color: var(--color-primary-hover);
+}
+.share-invite-btn:active:not(:disabled) {
+  transform: scale(0.96);
 }
 .share-error {
   @apply text-sm text-red-600 mb-3;
@@ -341,7 +586,8 @@
   @apply border-t border-gray-100 pt-3;
 }
 .share-collab-label {
-  @apply text-xs font-medium text-gray-400 uppercase tracking-wide mb-2;
+  @apply text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-2;
+  font-family: var(--font-mono);
 }
 .share-collab-list {
   @apply flex flex-col gap-1;
@@ -364,6 +610,7 @@
 }
 .export-dropdown {
   @apply absolute right-0 top-full mt-1 bg-white shadow-md border border-gray-200 rounded-lg py-1 w-40 z-20;
+  animation: modal-scale-in 0.12s ease;
 }
 .export-dropdown-item {
   @apply w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors;
@@ -379,10 +626,15 @@
   @apply fixed bottom-4 right-4 z-50;
 }
 .floating-toggle-btn {
-  @apply flex items-center gap-2 bg-white shadow-md border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors;
+  @apply flex items-center gap-2 bg-white shadow-md border border-gray-200 rounded-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-all;
+}
+.floating-toggle-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.15);
 }
 .color-picker-panel {
   @apply mb-2 bg-white shadow-md border border-gray-200 rounded-xl p-4 w-56 flex flex-col gap-3;
+  animation: modal-scale-in 0.15s ease;
 }
 .color-picker-row {
   @apply flex items-center justify-between;
@@ -391,7 +643,10 @@
   @apply text-sm text-gray-700;
 }
 .color-picker-input {
-  @apply w-8 h-8 rounded cursor-pointer border border-gray-200;
+  @apply w-8 h-8 rounded cursor-pointer border border-gray-200 transition-transform;
+}
+.color-picker-input:hover {
+  transform: scale(1.08);
 }
 .color-picker-reset {
   @apply flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors pt-1 border-t border-gray-100;
@@ -406,6 +661,26 @@
 }
 .alert--with-icon {
   @apply flex items-center gap-2;
+}
+.profile-header {
+  @apply flex items-center gap-4 mb-8;
+}
+.profile-avatar-lg {
+  @apply w-16 h-16 rounded-full flex items-center justify-center text-xl font-semibold shrink-0;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+.profile-name {
+  @apply text-lg font-semibold;
+  color: var(--color-text-strong);
+}
+.profile-meta {
+  @apply text-[11px] text-gray-400 mt-0.5;
+  font-family: var(--font-mono);
+}
+.profile-card {
+  @apply w-full bg-white rounded-xl border border-gray-200 p-8;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 16px 40px -16px rgba(0, 0, 0, 0.14);
 }
 
 /* ==========================================================================
@@ -422,10 +697,37 @@
    Editor - actions (partage)
    ========================================================================== */
 .editor-actions {
-  @apply flex items-center gap-2;
+  @apply flex items-center gap-2 justify-self-end;
 }
 .share-count-badge {
   @apply text-xs bg-gray-100 rounded-full px-1.5;
+}
+
+/* ==========================================================================
+   Impression (Ctrl+P) - n'affiche que le contenu du document
+   ========================================================================== */
+@media print {
+  .editor-topbar,
+  .toolbar,
+  .share-overlay,
+  .floating-picker-wrap,
+  .alert {
+    display: none !important;
+  }
+  .page-shell {
+    background: #fff;
+  }
+  .editor-frame {
+    margin: 0;
+    max-width: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .editor-body {
+    padding: 0;
+    min-height: 0;
+  }
 }
 
 /* ==========================================================================
@@ -441,9 +743,10 @@
   @apply text-sm text-red-600 mb-2;
 }
 .join-error-link {
-  @apply text-sm hover:underline;
+  @apply text-sm hover:underline transition-colors;
   color: var(--color-primary);
 }
 .join-loading {
-  @apply flex items-center gap-2 text-gray-500 text-sm;
+  @apply flex items-center gap-2 text-gray-400 text-sm;
+  font-family: var(--font-mono);
 }

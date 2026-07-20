@@ -165,7 +165,7 @@ export default function Home() {
             >
 
               <div className="doc-icon-wrap">
-                <FileText size={17} className="text-blue-500" />
+                <FileText size={17} style={{ color: 'var(--color-primary)' }} />
               </div>
 
               <div className="doc-info">
@@ -193,9 +193,13 @@ export default function Home() {
           ))}
 
           {!loading && documents.length === 0 && (
-            <p className="text-sm text-gray-400 italic px-3 py-2">
-              Aucun document pour l'instant.
-            </p>
+            <div className="empty-state">
+              <FileText size={22} className="text-gray-300" />
+              <p className="empty-state-title">Aucun document pour l'instant</p>
+              <p className="empty-state-subtitle">
+                Choisis un modèle ci-dessus pour créer le premier.
+              </p>
+            </div>
           )}
         </div>
 

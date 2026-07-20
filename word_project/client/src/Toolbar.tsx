@@ -20,6 +20,16 @@ const PRESET_COLORS = [
   { label: 'Violet', value: '#a855f7' },
 ]
 
+const FONTS = [
+  { label: 'Par défaut', value: '' },
+  { label: 'Arial', value: 'Arial' },
+  { label: 'Georgia', value: 'Georgia' },
+  { label: 'Times New Roman', value: 'Times New Roman' },
+  { label: 'Courier New', value: 'Courier New' },
+  { label: 'Verdana', value: 'Verdana' },
+  { label: 'Comic Sans MS', value: 'Comic Sans MS' },
+]
+
 export default function Toolbar({ editor }: Props) {
   const [colorOpen, setColorOpen] = useState(false)
   const colorRef = useRef<HTMLDivElement>(null)
@@ -69,6 +79,26 @@ export default function Toolbar({ editor }: Props) {
     setColorOpen(false)
   }
 
+  // Si rien n'est sélectionné, applique la commande à tout le document.
+  // Si une partie précise est sélectionnée, elle seule est affectée.
+  const withFallback = (run: () => void) => {
+    if (editor.state.selection.empty) {
+      editor.chain().focus().selectAll().run()
+    }
+    run()
+  }
+
+  const handleFontChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const font = e.target.value
+    withFallback(() => {
+      if (font) {
+        editor.chain().focus().setFontFamily(font).run()
+      } else {
+        editor.chain().focus().unsetFontFamily().run()
+      }
+    })
+  }
+
   return (
     <div className="toolbar">
 
@@ -82,17 +112,33 @@ export default function Toolbar({ editor }: Props) {
 
       <div className="toolbar-divider" />
 
+      {/* Police */}
+      <select
+        className="toolbar-font-select"
+        value={editor.getAttributes('textStyle').fontFamily || ''}
+        onChange={handleFontChange}
+        title="Police"
+      >
+        {FONTS.map((font) => (
+          <option key={font.label} value={font.value}>
+            {font.label}
+          </option>
+        ))}
+      </select>
+
+      <div className="toolbar-divider" />
+
       {/* Headings */}
       <button
         className={btn(editorState.isHeading1)}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        onClick={() => withFallback(() => editor.chain().focus().toggleHeading({ level: 1 }).run())}
         title="Titre 1"
       >
         <Heading1 size={15} />
       </button>
       <button
         className={btn(editorState.isHeading2)}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        onClick={() => withFallback(() => editor.chain().focus().toggleHeading({ level: 2 }).run())}
         title="Titre 2"
       >
         <Heading2 size={15} />
@@ -103,28 +149,28 @@ export default function Toolbar({ editor }: Props) {
       {/* Text style */}
       <button
         className={btn(editorState.isBold)}
-        onClick={() => editor.chain().focus().toggleBold().run()}
+        onClick={() => withFallback(() => editor.chain().focus().toggleBold().run())}
         title="Gras"
       >
         <Bold size={15} />
       </button>
       <button
         className={btn(editorState.isItalic)}
-        onClick={() => editor.chain().focus().toggleItalic().run()}
+        onClick={() => withFallback(() => editor.chain().focus().toggleItalic().run())}
         title="Italique"
       >
         <Italic size={15} />
       </button>
       <button
         className={btn(editorState.isUnderline)}
-        onClick={() => editor.chain().focus().toggleUnderline().run()}
+        onClick={() => withFallback(() => editor.chain().focus().toggleUnderline().run())}
         title="Souligné"
       >
         <Underline size={15} />
       </button>
       <button
         className={btn(editorState.isStrike)}
-        onClick={() => editor.chain().focus().toggleStrike().run()}
+        onClick={() => withFallback(() => editor.chain().focus().toggleStrike().run())}
         title="Barré"
       >
         <Strikethrough size={15} />
@@ -178,7 +224,7 @@ export default function Toolbar({ editor }: Props) {
       {/* Lists */}
       <button
         className={btn(editorState.isBulletList)}
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        onClick={() => withFallback(() => editor.chain().focus().toggleBulletList().run())}
         title="Liste à puces"
       >
         <List size={15} />
@@ -189,21 +235,21 @@ export default function Toolbar({ editor }: Props) {
       {/* Alignment */}
       <button
         className={btn(editorState.isAlignLeft)}
-        onClick={() => editor.chain().focus().setTextAlign('left').run()}
+        onClick={() => withFallback(() => editor.chain().focus().setTextAlign('left').run())}
         title="Aligner à gauche"
       >
         <AlignLeft size={15} />
       </button>
       <button
         className={btn(editorState.isAlignCenter)}
-        onClick={() => editor.chain().focus().setTextAlign('center').run()}
+        onClick={() => withFallback(() => editor.chain().focus().setTextAlign('center').run())}
         title="Centrer"
       >
         <AlignCenter size={15} />
       </button>
       <button
         className={btn(editorState.isAlignRight)}
-        onClick={() => editor.chain().focus().setTextAlign('right').run()}
+        onClick={() => withFallback(() => editor.chain().focus().setTextAlign('right').run())}
         title="Aligner à droite"
       >
         <AlignRight size={15} />

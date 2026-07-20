@@ -1,11 +1,27 @@
 import { Server } from '@hocuspocus/server'
 import { Database } from '@hocuspocus/extension-database'
 import { TiptapTransformer } from '@hocuspocus/transformer'
+import StarterKit from '@tiptap/starter-kit'
+import TextAlign from '@tiptap/extension-text-align'
+import TextStyle from '@tiptap/extension-text-style'
+import Color from '@tiptap/extension-color'
+import FontFamily from '@tiptap/extension-font-family'
 import * as Y from 'yjs'
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000'
 const INTERNAL_SECRET = process.env.INTERNAL_SECRET
 const PORT = 1234
+
+// Doit rester aligné avec les extensions tiptap enregistrées côté client
+// (Editor.tsx) : le schéma servant à (dé)sérialiser le contenu stocké est
+// construit à partir de cette liste, pas de celle de l'éditeur.
+TiptapTransformer.extensions([
+  StarterKit,
+  TextAlign.configure({ types: ['heading', 'paragraph'] }),
+  TextStyle,
+  Color,
+  FontFamily,
+])
 
 const server = Server.configure({
   port: PORT,

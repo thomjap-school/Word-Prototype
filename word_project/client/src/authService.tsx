@@ -4,6 +4,7 @@ export interface UserOut {
   id: number;
   email: string;
   full_name: string | null;
+  is_verified: boolean;
   created_at: string;
 }
 
@@ -61,6 +62,32 @@ export async function register(payload: RegisterPayload): Promise<UserOut> {
   const user = await parseErrorOrJson(res);
   storeFullName(user);
   return user;
+}
+
+export async function loginWithGoogle(credential: string): Promise<string> {
+  const res = await fetch(`${API_URL}/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ credential }),
+  });
+  const data = await parseErrorOrJson(res);
+  localStorage.setItem("token", data.access_token);
+  storeFullName(await getCurrentUser());
+  return data.access_token;
+}
+
+export async function verifyEmail(token: string): Promise<{ message: string }> {
+  const res = await fetch(`${API_URL}/auth/verify-email?token=${encodeURIComponent(token)}`);
+  return parseErrorOrJson(res);
+}
+
+export async function resendVerification(email: string): Promise<{ message: string }> {
+  const res = await fetch(`${API_URL}/auth/resend-verification`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  return parseErrorOrJson(res);
 }
 
 function authHeaders() {
