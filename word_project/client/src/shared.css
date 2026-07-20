@@ -23,7 +23,7 @@
    Header (Home / EditorPage)
    ========================================================================== */
 .app-header {
-  @apply bg-white border-b border-gray-200 px-8 h-14 flex items-center sticky top-0 z-10;
+  @apply bg-white border-b border-gray-200 px-8 h-14 flex items-center sticky top-0 z-20;
 }
 .app-header--between {
   @apply justify-between;
@@ -114,6 +114,38 @@
   border-radius: 9999px;
   background: var(--color-primary);
   cursor: pointer;
+}
+
+/* Recherche de titre */
+.music-search-wrap {
+  @apply relative shrink-0;
+}
+.music-search-popover {
+  @apply absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-20 w-64 p-2;
+}
+.music-search-input {
+  @apply w-full text-sm bg-gray-100 border border-gray-200 rounded-md px-2 py-1.5 outline-none;
+}
+.music-search-input:focus {
+  border-color: var(--color-primary-border);
+}
+.music-search-results {
+  @apply mt-2 max-h-64 overflow-y-auto flex flex-col gap-0.5;
+}
+.music-search-item {
+  @apply flex flex-col items-start text-left px-2 py-1.5 rounded-md hover:bg-gray-100 transition-colors;
+}
+.music-search-item--active {
+  background-color: var(--color-primary-light);
+}
+.music-search-item-title {
+  @apply text-xs font-medium text-gray-800 truncate w-full;
+}
+.music-search-item-artist {
+  @apply text-[11px] text-gray-400 truncate w-full;
+}
+.music-search-empty {
+  @apply text-xs text-gray-400 text-center py-4;
 }
 
 .search-box {

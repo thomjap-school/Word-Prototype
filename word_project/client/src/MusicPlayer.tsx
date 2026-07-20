@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Music2, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
-import { NCS_TRACKS } from './ncsTracks'
+import { Music2, Pause, Play, Search, SkipBack, SkipForward } from 'lucide-react'
+import { NCS_TRACKS, type NcsTrack } from './ncsTracks'
 
 // Ordre mélangé une fois par montage, pour ne pas toujours démarrer sur le
 // même titre tout en gardant un ordre stable pendant la session.
@@ -22,12 +22,15 @@ function formatTime(seconds: number): string {
 
 export default function MusicPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null)
+  const searchRef = useRef<HTMLDivElement>(null)
 
   const [tracks] = useState(() => shuffle(NCS_TRACKS))
   const [index, setIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     const audio = audioRef.current
@@ -46,6 +49,16 @@ export default function MusicPlayer() {
     setDuration(0)
   }, [index])
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const next = () => setIndex((i) => (i + 1) % tracks.length)
   const prev = () => setIndex((i) => (i - 1 + tracks.length) % tracks.length)
 
@@ -54,6 +67,20 @@ export default function MusicPlayer() {
     setCurrentTime(value)
     if (audioRef.current) audioRef.current.currentTime = value
   }
+
+  const selectTrack = (t: NcsTrack) => {
+    const i = tracks.indexOf(t)
+    if (i === -1) return
+    setIndex(i)
+    setIsPlaying(true)
+    setSearchOpen(false)
+    setQuery('')
+  }
+
+  const q = query.trim().toLowerCase()
+  const filtered = q
+    ? tracks.filter((t) => t.title.toLowerCase().includes(q) || t.artist.toLowerCase().includes(q))
+    : tracks
 
   const track = tracks[index]
 
@@ -91,6 +118,45 @@ export default function MusicPlayer() {
           <span className="music-player-track">
             {track.title} <span className="music-player-artist">— {track.artist}</span>
           </span>
+        </div>
+
+        <div className="music-search-wrap" ref={searchRef}>
+          <button
+            onClick={() => setSearchOpen((v) => !v)}
+            className="music-player-btn"
+            aria-label="Rechercher un titre"
+            title="Rechercher un titre"
+          >
+            <Search size={13} />
+          </button>
+
+          {searchOpen && (
+            <div className="music-search-popover">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Rechercher un titre ou un artiste..."
+                className="music-search-input"
+                autoFocus
+              />
+              <div className="music-search-results">
+                {filtered.length === 0 && (
+                  <div className="music-search-empty">Aucun résultat</div>
+                )}
+                {filtered.map((t) => (
+                  <button
+                    key={t.url}
+                    onClick={() => selectTrack(t)}
+                    className={`music-search-item ${t.url === track.url ? 'music-search-item--active' : ''}`}
+                  >
+                    <span className="music-search-item-title">{t.title}</span>
+                    <span className="music-search-item-artist">{t.artist}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
