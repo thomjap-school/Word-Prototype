@@ -4,6 +4,8 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Placeholder } from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
+import { TextStyle } from '@tiptap/extension-text-style'
+import { Color } from '@tiptap/extension-color'
 import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import * as Y from 'yjs'
@@ -134,6 +136,8 @@ function Editor() {
       ? [
           StarterKit.configure({ undoRedo: false }), // historique géré par Yjs
           TextAlign.configure({ types: ['heading', 'paragraph'] }),
+          TextStyle,
+          Color,
           Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
           Collaboration.configure({ document: ydoc }),
           CollaborationCaret.configure({ provider, user: currentUser }),
