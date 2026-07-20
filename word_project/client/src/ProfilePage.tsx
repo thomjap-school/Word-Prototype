@@ -1,8 +1,9 @@
 import { useEffect, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, Lock, LoaderCircle, Check } from "lucide-react";
-import { getCurrentUser, updateProfile, changePassword, type UserOut } from "./authService";
+import { ArrowLeft, User, Mail, Lock, LoaderCircle, Check, LogOut } from "lucide-react";
+import { getCurrentUser, updateProfile, changePassword, logout, type UserOut } from "./authService";
 import MusicPlayer from "./MusicPlayer";
+import MobileMenu from "./MobileMenu";
 
 function getInitials(fullName: string | null, email: string) {
   if (fullName && fullName.trim()) {
@@ -98,15 +99,28 @@ export default function ProfilePage() {
 
   return (
     <div className="page-shell">
-      <header className="app-header">
+      <header className="app-header app-header--between">
         <button onClick={() => navigate("/")} className="editor-back-btn">
           <ArrowLeft size={15} />
-          Retour
+          <span className="btn-label">Retour</span>
         </button>
 
         <div className="app-header-center">
           <MusicPlayer />
         </div>
+
+        <MobileMenu>
+          <button
+            className="mobile-menu-item mobile-menu-item--danger"
+            onClick={() => {
+              logout();
+              navigate("/login");
+            }}
+          >
+            <LogOut size={15} />
+            Déconnexion
+          </button>
+        </MobileMenu>
       </header>
 
       <main className="home-main">

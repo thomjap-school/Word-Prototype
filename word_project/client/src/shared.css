@@ -42,23 +42,58 @@ body {
    Header (Home / EditorPage)
    ========================================================================== */
 .app-header {
-  @apply bg-white border-b border-gray-200 px-8 h-14 flex items-center sticky top-0 z-20;
+  @apply bg-white border-b border-gray-200 px-3 sm:px-8 h-14 flex items-center gap-2 sm:gap-4 sticky top-0 z-20;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 .app-header--between {
   @apply justify-between;
 }
 .app-logo {
-  @apply flex items-center gap-2;
+  @apply flex items-center gap-2 shrink-0;
 }
 .app-logo-icon {
-  @apply w-7 h-7 rounded-md flex items-center justify-center transition-transform;
+  @apply w-7 h-7 rounded-md flex items-center justify-center transition-transform shrink-0;
   background-color: var(--color-primary);
   color: var(--color-on-primary);
 }
 .app-logo-text {
-  @apply text-sm font-semibold tracking-tight;
+  @apply text-sm font-semibold tracking-tight hidden sm:inline;
   color: var(--color-text-strong);
+}
+
+/* Label masqué sur mobile (boutons icône seule) */
+.btn-label {
+  @apply hidden sm:inline;
+}
+
+/* ==========================================================================
+   Menu burger (mobile uniquement)
+   ========================================================================== */
+.mobile-menu {
+  @apply relative sm:hidden shrink-0;
+}
+.mobile-menu-toggle {
+  @apply w-9 h-9 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 transition-colors;
+}
+.mobile-menu-panel {
+  @apply absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-xl p-3 w-[300px] max-w-[calc(100vw-1.5rem)] z-30 flex flex-col gap-2;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 16px 40px -16px rgba(0, 0, 0, 0.2);
+  animation: modal-scale-in 0.15s ease;
+}
+/* Le lecteur est masqué (hidden) dans le header sur mobile : ici on le
+   ré-affiche et on l'étire à la largeur du panneau. */
+.mobile-menu-music .music-player {
+  display: flex;
+  width: 100%;
+}
+.mobile-menu-actions {
+  @apply flex flex-col gap-0.5 pt-2 border-t border-gray-100;
+}
+.mobile-menu-item {
+  @apply flex items-center gap-2 w-full text-left text-sm text-gray-700 hover:bg-gray-50 rounded-md px-2 py-2 transition-colors;
+}
+.mobile-menu-item--danger {
+  @apply text-red-600 hover:bg-red-50;
 }
 .app-header-center {
   @apply hidden sm:flex;
@@ -72,7 +107,7 @@ body {
    Lecteur de musique (header)
    ========================================================================== */
 .music-player {
-  @apply flex flex-col justify-center gap-1 bg-gray-100 border border-gray-200 rounded-2xl pl-1 pr-2 py-1 w-[300px];
+  @apply hidden sm:flex flex-col justify-center gap-1 bg-gray-100 border border-gray-200 rounded-2xl pl-1 pr-2 py-1 w-[300px];
 }
 .music-player-row {
   @apply flex items-center gap-0.5;
@@ -169,11 +204,11 @@ body {
 }
 
 .home-header-center {
-  @apply flex items-center gap-3;
+  @apply flex items-center gap-3 flex-1 min-w-0 sm:flex-none;
 }
 
 .search-box {
-  @apply flex items-center gap-2 bg-gray-100 border border-transparent rounded-lg px-3 h-9 w-72 transition-colors;
+  @apply flex items-center gap-2 bg-gray-100 border border-transparent rounded-lg px-3 h-9 w-full sm:w-72 min-w-0 transition-colors;
 }
 .search-box:focus-within {
   @apply bg-white;
@@ -201,7 +236,7 @@ body {
    Home - contenu
    ========================================================================== */
 .home-main {
-  @apply max-w-3xl mx-auto px-6 py-8;
+  @apply max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-8;
 }
 .section-label {
   @apply text-[11px] font-medium text-gray-400 uppercase tracking-widest mb-4;
@@ -212,7 +247,7 @@ body {
 }
 
 .template-grid {
-  @apply grid grid-cols-4 gap-3 mb-8;
+  @apply grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8;
 }
 .template-card {
   @apply flex flex-col items-center gap-2 p-4 rounded-xl border cursor-pointer border-gray-200 bg-white hover:bg-gray-50;
@@ -287,7 +322,7 @@ body {
   background-color: var(--color-bg);
 }
 .auth-card {
-  @apply w-full max-w-sm bg-white rounded-xl border border-gray-200 p-8;
+  @apply w-full max-w-sm bg-white rounded-xl border border-gray-200 p-6 sm:p-8;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 16px 40px -16px rgba(0, 0, 0, 0.14);
 }
 .auth-eyebrow {
@@ -377,7 +412,7 @@ body {
    Editor
    ========================================================================== */
 .editor-topbar {
-  @apply bg-white border-b border-gray-200 px-6 h-12 flex items-center justify-between sticky top-0 z-10;
+  @apply bg-white border-b border-gray-200 px-2 sm:px-6 h-12 flex items-center justify-between gap-2 sticky top-0 z-10;
   position: relative;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
@@ -421,11 +456,11 @@ body {
   font-family: var(--font-mono);
 }
 .editor-frame {
-  @apply max-w-3xl mx-auto mt-8 mb-16 bg-white border border-gray-200 rounded-xl overflow-hidden;
+  @apply max-w-3xl mx-2 sm:mx-auto mt-4 sm:mt-8 mb-8 sm:mb-16 bg-white border border-gray-200 rounded-xl overflow-hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 20px 48px -20px rgba(0, 0, 0, 0.12);
 }
 .editor-body {
-  @apply p-10 min-h-[700px];
+  @apply p-4 sm:p-10 min-h-[500px] sm:min-h-[700px];
 }
 .editor-body .tiptap {
   line-height: 1.75;
@@ -610,7 +645,7 @@ body {
   @apply flex items-center gap-2 relative;
 }
 .toolbar-action-btn {
-  @apply flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition px-3 h-8 rounded-lg border border-gray-200 disabled:opacity-60;
+  @apply flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition px-2 sm:px-3 h-8 rounded-lg border border-gray-200 disabled:opacity-60;
 }
 .export-dropdown {
   @apply absolute right-0 top-full mt-1 bg-white shadow-md border border-gray-200 rounded-lg py-1 w-40 z-20;
@@ -683,7 +718,7 @@ body {
   font-family: var(--font-mono);
 }
 .profile-card {
-  @apply w-full bg-white rounded-xl border border-gray-200 p-8;
+  @apply w-full bg-white rounded-xl border border-gray-200 p-5 sm:p-8;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 16px 40px -16px rgba(0, 0, 0, 0.14);
 }
 
@@ -691,20 +726,39 @@ body {
    Home - actions header / suppression
    ========================================================================== */
 .home-header-actions {
-  @apply flex items-center gap-3;
+  @apply flex items-center gap-2 sm:gap-3 shrink-0;
 }
 .doc-delete-btn {
-  @apply text-gray-300 hover:text-red-500 shrink-0 opacity-0 group-hover:opacity-100 transition p-1;
+  @apply text-gray-300 hover:text-red-500 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition p-1;
 }
 
 /* ==========================================================================
    Editor - actions (partage)
    ========================================================================== */
 .editor-actions {
-  @apply flex items-center gap-2 justify-self-end;
+  @apply flex items-center gap-1 sm:gap-2 justify-self-end shrink-0;
 }
 .share-count-badge {
   @apply text-xs bg-gray-100 rounded-full px-1.5;
+}
+
+/* ==========================================================================
+   Adaptations mobile / téléphone (< 640px)
+   ========================================================================== */
+@media (max-width: 639px) {
+  /* Titre de l'éditeur : sur desktop il est centré en position absolue
+     (width fixe 300px). Sur mobile ça chevauche les boutons, donc on le
+     repasse en flux normal, extensible entre le bouton retour et les actions. */
+  .editor-title-input {
+    position: static;
+    transform: none;
+    left: auto;
+    top: auto;
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+  }
 }
 
 /* ==========================================================================

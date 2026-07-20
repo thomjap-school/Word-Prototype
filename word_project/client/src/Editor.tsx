@@ -239,7 +239,7 @@ function Editor() {
       <div className="editor-topbar">
         <button onClick={() => navigate('/')} className="editor-back-btn">
           <ArrowLeft size={15} />
-          Retour
+          <span className="btn-label">Retour</span>
         </button>
 
         <input
@@ -251,13 +251,13 @@ function Editor() {
         />
 
         <div className="editor-actions">
-          <span className={`editor-status editor-status--${status}`}>
+          <span className={`editor-status editor-status--${status} hidden sm:inline-block`}>
             {status === 'connected' ? 'Synchronisé' : status === 'connecting' ? 'Connexion...' : 'Hors ligne'}
           </span>
 
           {saveState !== 'idle' && (
             <span
-              className={`editor-status editor-status--${
+              className={`editor-status hidden sm:inline-block editor-status--${
                 saveState === 'saving' ? 'connecting' : saveState === 'saved' ? 'connected' : 'disconnected'
               }`}
             >
@@ -273,7 +273,7 @@ function Editor() {
               className="toolbar-action-btn"
             >
               <Users size={14} />
-              Partager
+              <span className="btn-label">Partager</span>
               {collaborators.length > 0 && (
                 <span className="share-count-badge">
                   {collaborators.length}

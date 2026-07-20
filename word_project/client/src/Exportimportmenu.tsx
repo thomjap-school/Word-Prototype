@@ -82,7 +82,7 @@ export default function ExportImportMenu({
         ) : (
           <Upload size={14} />
         )}
-        Importer
+        <span className="btn-label">Importer</span>
       </button>
 
       <div className="relative">
@@ -92,7 +92,7 @@ export default function ExportImportMenu({
           className="toolbar-action-btn"
         >
           <Download size={14} />
-          Exporter
+          <span className="btn-label">Exporter</span>
         </button>
 
         {exportOpen && (

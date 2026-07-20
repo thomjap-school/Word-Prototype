@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft, LoaderCircle, LogOut, Trash2 } from 'lucide-react'
+import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft, LoaderCircle, LogOut, Trash2, User } from 'lucide-react'
 import { logout } from './authService'
 import { listDocuments, createDocument, deleteDocument, type DocumentSummary } from './documentService'
 import MusicPlayer from './MusicPlayer'
+import MobileMenu from './MobileMenu'
 
 const TEMPLATE_TITLES: Record<string, string> = {
   'Document vide': 'Document sans titre',
@@ -105,17 +106,28 @@ export default function Home() {
         </div>
 
         <div className="home-header-actions">
-          <button onClick={handleLogout} className="logout-btn" title="Se déconnecter">
+          <button onClick={handleLogout} className="logout-btn hidden sm:flex" title="Se déconnecter">
             <LogOut size={14} />
-            Déconnexion
+            <span className="btn-label">Déconnexion</span>
           </button>
           <div
-            className="user-avatar"
+            className="user-avatar hidden sm:flex"
             onClick={() => navigate('/profile')}
             title={fullName}
           >
             {initials}
           </div>
+
+          <MobileMenu>
+            <button className="mobile-menu-item" onClick={() => navigate('/profile')}>
+              <User size={15} />
+              Mon profil
+            </button>
+            <button className="mobile-menu-item mobile-menu-item--danger" onClick={handleLogout}>
+              <LogOut size={15} />
+              Déconnexion
+            </button>
+          </MobileMenu>
         </div>
 
       </header>

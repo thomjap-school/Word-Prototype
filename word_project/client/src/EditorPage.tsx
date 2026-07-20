@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import Editor from './Editor'
 import MusicPlayer from './MusicPlayer'
-import { FileText, LogOut } from 'lucide-react'
+import MobileMenu from './MobileMenu'
+import { FileText, LogOut, User } from 'lucide-react'
 import { logout } from './authService'
 
 export default function EditorPage() {
@@ -36,17 +37,28 @@ export default function EditorPage() {
         </div>
 
         <div className="home-header-actions">
-          <button onClick={handleLogout} className="logout-btn" title="Se déconnecter">
+          <button onClick={handleLogout} className="logout-btn hidden sm:flex" title="Se déconnecter">
             <LogOut size={14} />
-            Déconnexion
+            <span className="btn-label">Déconnexion</span>
           </button>
           <div
-            className="user-avatar"
+            className="user-avatar hidden sm:flex"
             onClick={() => navigate('/profile')}
             title={fullName}
           >
             {initials}
           </div>
+
+          <MobileMenu>
+            <button className="mobile-menu-item" onClick={() => navigate('/profile')}>
+              <User size={15} />
+              Mon profil
+            </button>
+            <button className="mobile-menu-item mobile-menu-item--danger" onClick={handleLogout}>
+              <LogOut size={15} />
+              Déconnexion
+            </button>
+          </MobileMenu>
         </div>
       </header>
 
