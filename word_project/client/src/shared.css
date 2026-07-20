@@ -40,6 +40,81 @@
   @apply text-sm font-medium;
   color: var(--color-text-strong);
 }
+.app-header-center {
+  @apply hidden sm:flex;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ==========================================================================
+   Lecteur de musique (header)
+   ========================================================================== */
+.music-player {
+  @apply flex flex-col justify-center gap-1 bg-gray-100 border border-gray-200 rounded-2xl pl-1 pr-2 py-1 w-[300px];
+}
+.music-player-row {
+  @apply flex items-center gap-0.5;
+}
+.music-player-btn {
+  @apply w-7 h-7 flex items-center justify-center rounded-full text-gray-500 hover:bg-white hover:text-gray-900 transition-colors shrink-0;
+}
+.music-player-btn--play {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.music-player-btn--play:hover {
+  background-color: var(--color-primary-hover);
+  color: var(--color-on-primary);
+}
+.music-player-info {
+  @apply flex items-center gap-1.5 pl-2 ml-1 border-l border-gray-200 text-xs text-gray-600 min-w-0 flex-1;
+}
+.music-player-track {
+  @apply truncate;
+}
+.music-player-artist {
+  @apply text-gray-400;
+}
+
+/* Barre de progression + timer */
+.music-player-seek {
+  @apply flex items-center gap-1.5 px-1;
+}
+.music-player-time {
+  @apply text-[10px] leading-none text-gray-400 tabular-nums w-7 shrink-0;
+}
+.music-player-time:last-child {
+  @apply text-right;
+}
+.music-player-range {
+  @apply w-full h-1 rounded-full appearance-none cursor-pointer bg-gray-300;
+  accent-color: var(--color-primary);
+}
+.music-player-range::-webkit-slider-runnable-track {
+  @apply h-1 rounded-full bg-gray-300;
+}
+.music-player-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  margin-top: -3px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  cursor: pointer;
+}
+.music-player-range::-moz-range-track {
+  @apply h-1 rounded-full bg-gray-300;
+}
+.music-player-range::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  cursor: pointer;
+}
 
 .search-box {
   @apply flex items-center gap-2 bg-gray-100 border border-gray-200 rounded-lg px-3 h-9 w-72;
