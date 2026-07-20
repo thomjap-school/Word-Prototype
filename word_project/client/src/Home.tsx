@@ -6,6 +6,7 @@ import { listDocuments, createDocument, deleteDocument, type DocumentSummary } f
 import MusicPlayer from './MusicPlayer'
 import MobileMenu from './MobileMenu'
 import HomeDecor from './HomeDecor'
+import KonamiSnake from './KonamiSnake'
 
 const TEMPLATE_TITLES: Record<string, string> = {
   'Document vide': 'Document sans titre',
@@ -84,6 +85,7 @@ export default function Home() {
     <div className="page-shell">
 
       <HomeDecor />
+      <KonamiSnake />
 
       {/* Header */}
       <header className="app-header app-header--between">

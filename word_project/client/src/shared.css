@@ -588,6 +588,59 @@ body {
   from { opacity: 0; transform: translateY(4px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* ==========================================================================
+   Easter egg : Snake (code Konami)
+   ========================================================================== */
+.snake-overlay {
+  @apply fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 px-4;
+  animation: overlay-fade-in 0.15s ease;
+}
+.snake-modal {
+  @apply bg-white rounded-xl border border-gray-200 w-full max-w-xs p-5 flex flex-col items-center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 48px -16px rgba(0, 0, 0, 0.2);
+  animation: modal-scale-in 0.18s ease;
+}
+.snake-modal-header {
+  @apply flex items-center justify-between w-full mb-1;
+}
+.snake-modal-title {
+  @apply text-base font-semibold;
+  color: var(--color-text-strong);
+}
+.snake-modal-close {
+  @apply text-gray-400 hover:text-gray-600 transition-colors;
+}
+.snake-score {
+  @apply text-sm text-gray-500 w-full text-left mb-2;
+}
+.snake-board-wrap {
+  @apply relative rounded-lg overflow-hidden border border-gray-200;
+}
+.snake-board {
+  @apply block;
+}
+.snake-gameover {
+  @apply absolute inset-0 flex flex-col items-center justify-center gap-1.5 bg-white/90 backdrop-blur-sm;
+}
+.snake-gameover-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+.snake-gameover-score {
+  @apply text-sm text-gray-500 mb-1;
+}
+.snake-replay-btn {
+  @apply text-white text-sm font-medium px-3 py-1.5 rounded-md transition-colors;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.snake-replay-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+.snake-hint {
+  @apply text-xs text-gray-400 mt-3 text-center;
+}
+
 .share-modal-header {
   @apply flex items-center justify-between mb-4;
 }
