@@ -23,6 +23,7 @@ class UserOut(BaseModel):
     id: int
     email: str
     full_name: str | None
+    is_verified: bool
     created_at: datetime
 
     class Config:
@@ -33,6 +34,14 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class ResendVerificationRequest(BaseModel):
+    email: EmailStr
+
+
+class VerifyEmailResponse(BaseModel):
+    message: str
 
 
 class UserUpdate(BaseModel):

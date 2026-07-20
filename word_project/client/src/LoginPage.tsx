@@ -1,7 +1,9 @@
 import { useState, type SyntheticEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { login } from "./authService";
+import { login, resendVerification } from "./authService";
+
+const UNVERIFIED_MESSAGE = "Confirme ton email avant de te connecter";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,10 +14,12 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent">("idle");
 
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setResendState("idle");
     setLoading(true);
     try {
       await login({ email, password });
@@ -27,6 +31,15 @@ export default function LoginPage() {
     }
   };
 
+  const handleResend = async () => {
+    setResendState("sending");
+    try {
+      await resendVerification(email);
+    } finally {
+      setResendState("sent");
+    }
+  };
+
   return (
     <div className="auth-shell">
       <div className="auth-card">
@@ -35,13 +48,31 @@ export default function LoginPage() {
 
         {justRegistered && !error && (
           <div className="alert alert--success">
-            Compte créé, tu peux te connecter.
+            Compte créé ! Vérifie ta boîte mail pour confirmer ton adresse avant de te connecter.
           </div>
         )}
 
         {error && (
           <div className="alert alert--error">
             {error}
+            {error === UNVERIFIED_MESSAGE && (
+              <>
+                {" "}
+                {resendState === "sent" ? (
+                  <span>Email de confirmation renvoyé si le compte existe.</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendState === "sending"}
+                    className="auth-link"
+                    style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+                  >
+                    Renvoyer l'email de confirmation
+                  </button>
+                )}
+              </>
+            )}
           </div>
         )}
 

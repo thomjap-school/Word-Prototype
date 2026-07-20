@@ -30,7 +30,7 @@ export default function RegisterPage() {
     try {
       await register({ email, password, full_name: fullName || undefined });
 
-      navigate("/login", { state: { registered: true } });
+      navigate("/login", { state: { registered: true } }); // le message sur LoginPage invite à vérifier ses emails
     } catch (err) {
       setError(err instanceof Error ? err.message : "Échec de l'inscription");
     } finally {
