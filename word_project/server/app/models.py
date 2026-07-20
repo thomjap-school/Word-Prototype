@@ -1,6 +1,6 @@
 """ app/models.py """
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, UniqueConstraint
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, UniqueConstraint, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -11,8 +11,13 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    # Nullable : un compte créé via Google n'a pas de mot de passe local.
+    hashed_password = Column(String, nullable=True)
     full_name = Column(String, nullable=True)
+    google_id = Column(String, unique=True, index=True, nullable=True)
+    is_verified = Column(Boolean, nullable=False, default=False)
+    verification_token = Column(String, index=True, nullable=True)
+    verification_token_expires_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     documents = relationship("Document", back_populates="owner")
