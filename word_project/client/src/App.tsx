@@ -8,10 +8,11 @@ import ProfilePage from './ProfilePage'
 import JoinPage from './Joinpage'
 import ProtectedRoute from './ProtectedRoute'
 import ColorThemePicker from './Colorthemepicker'
+import { MusicPlayerProvider } from './MusicPlayerContext'
 
 function App() {
   return (
-    <>
+    <MusicPlayerProvider>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -24,7 +25,7 @@ function App() {
         </Route>
       </Routes>
       <ColorThemePicker />
-    </>
+    </MusicPlayerProvider>
   )
 }
 

@@ -1,17 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Music2, Pause, Play, Search, SkipBack, SkipForward } from 'lucide-react'
-import { NCS_TRACKS, type NcsTrack } from './ncsTracks'
-
-// Ordre mélangé une fois par montage, pour ne pas toujours démarrer sur le
-// même titre tout en gardant un ordre stable pendant la session.
-function shuffle<T>(items: T[]): T[] {
-  const result = [...items]
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[result[i], result[j]] = [result[j], result[i]]
-  }
-  return result
-}
+import { useMusicPlayer } from './MusicPlayerContext'
+import type { NcsTrack } from './ncsTracks'
 
 function formatTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return '0:00'
@@ -21,33 +11,11 @@ function formatTime(seconds: number): string {
 }
 
 export default function MusicPlayer() {
-  const audioRef = useRef<HTMLAudioElement>(null)
+  const { tracks, track, isPlaying, currentTime, duration, togglePlay, next, prev, seek, selectTrack } =
+    useMusicPlayer()
   const searchRef = useRef<HTMLDivElement>(null)
-
-  const [tracks] = useState(() => shuffle(NCS_TRACKS))
-  const [index, setIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
-
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    if (isPlaying) {
-      audio.play().catch(() => setIsPlaying(false))
-    } else {
-      audio.pause()
-    }
-  }, [isPlaying, index])
-
-  // Repart de zéro à chaque changement de piste, sinon l'ancien temps reste
-  // affiché le temps que les métadonnées du nouveau morceau se chargent.
-  useEffect(() => {
-    setCurrentTime(0)
-    setDuration(0)
-  }, [index])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -59,20 +27,12 @@ export default function MusicPlayer() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const next = () => setIndex((i) => (i + 1) % tracks.length)
-  const prev = () => setIndex((i) => (i - 1 + tracks.length) % tracks.length)
-
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Number(e.target.value)
-    setCurrentTime(value)
-    if (audioRef.current) audioRef.current.currentTime = value
+    seek(Number(e.target.value))
   }
 
-  const selectTrack = (t: NcsTrack) => {
-    const i = tracks.indexOf(t)
-    if (i === -1) return
-    setIndex(i)
-    setIsPlaying(true)
+  const handleSelect = (t: NcsTrack) => {
+    selectTrack(t)
     setSearchOpen(false)
     setQuery('')
   }
@@ -82,26 +42,15 @@ export default function MusicPlayer() {
     ? tracks.filter((t) => t.title.toLowerCase().includes(q) || t.artist.toLowerCase().includes(q))
     : tracks
 
-  const track = tracks[index]
-
   return (
     <div className="music-player">
-      <audio
-        ref={audioRef}
-        src={track.url}
-        onEnded={next}
-        onError={next}
-        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-      />
-
       <div className="music-player-row">
         <button onClick={prev} className="music-player-btn" aria-label="Piste précédente" title="Piste précédente">
           <SkipBack size={13} />
         </button>
 
         <button
-          onClick={() => setIsPlaying((p) => !p)}
+          onClick={togglePlay}
           className="music-player-btn music-player-btn--play"
           aria-label={isPlaying ? 'Pause' : 'Lecture'}
           title={isPlaying ? 'Pause' : 'Lecture'}
@@ -147,7 +96,7 @@ export default function MusicPlayer() {
                 {filtered.map((t) => (
                   <button
                     key={t.url}
-                    onClick={() => selectTrack(t)}
+                    onClick={() => handleSelect(t)}
                     className={`music-search-item ${t.url === track.url ? 'music-search-item--active' : ''}`}
                   >
                     <span className="music-search-item-title">{t.title}</span>
