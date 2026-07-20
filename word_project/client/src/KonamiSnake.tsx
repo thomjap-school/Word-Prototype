@@ -222,29 +222,29 @@ export default function KonamiInvaders() {
   if (!isOpen) return null
 
   return (
-    <div className="invader-overlay" onClick={() => setIsOpen(false)}>
-      <div className="invader-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-        <div className="invader-modal-header">
-          <h2 className="invader-modal-title">👾 Code Konami inversé !</h2>
-          <button onClick={() => setIsOpen(false)} className="invader-modal-close" aria-label="Fermer">
+    <div className="snake-overlay" onClick={() => setIsOpen(false)}>
+      <div className="snake-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+        <div className="snake-modal-header">
+          <h2 className="snake-modal-title">👾 Code Konami inversé !</h2>
+          <button onClick={() => setIsOpen(false)} className="snake-modal-close" aria-label="Fermer">
             <X size={16} />
           </button>
         </div>
 
-        <p className="invader-score">Score : {score}</p>
+        <p className="snake-score">Score : {score}</p>
 
-        <div className="invader-board-wrap">
-          <canvas ref={canvasRef} width={COLS * CELL} height={ROWS * CELL} className="invader-board" />
+        <div className="snake-board-wrap">
+          <canvas ref={canvasRef} width={COLS * CELL} height={ROWS * CELL} className="snake-board" />
           {gameOver && (
-            <div className="invader-gameover">
-              <p className="invader-gameover-title">{won ? 'Gagné !' : 'Perdu !'}</p>
-              <p className="invader-gameover-score">Score final : {score}</p>
-              <button onClick={resetGame} className="invader-replay-btn">Rejouer</button>
+            <div className="snake-gameover">
+              <p className="snake-gameover-title">{won ? 'Gagné !' : 'Perdu !'}</p>
+              <p className="snake-gameover-score">Score final : {score}</p>
+              <button onClick={resetGame} className="snake-replay-btn">Rejouer</button>
             </div>
           )}
         </div>
 
-        <p className="invader-hint">← → pour bouger · Espace pour tirer · Échap pour fermer</p>
+        <p className="snake-hint">← → pour bouger · Espace pour tirer · Échap pour fermer</p>
       </div>
     </div>
   )
