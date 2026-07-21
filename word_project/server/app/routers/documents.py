@@ -175,11 +175,13 @@ def remove_collaborator(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(security.get_current_user),
 ):
-    doc = db.query(models.Document).filter(
-        models.Document.id == document_id,
-        models.Document.owner_id == current_user.id,
-    ).first()
-    if not doc:
+    # Avant : seul le propriétaire (owner_id == current_user.id) pouvait supprimer.
+    # Maintenant : le propriétaire ET n'importe quel collaborateur (invité) peuvent supprimer
+    # un collaborateur, grâce à _has_access. L'admin, lui, n'est jamais dans la table
+    # DocumentCollaborator (voir models.Document.collaborators), donc il ne peut jamais
+    # être matché ni supprimé via cette route.
+    doc = db.query(models.Document).filter(models.Document.id == document_id).first()
+    if not doc or not _has_access(doc, current_user):
         raise HTTPException(status_code=404, detail="Document introuvable")
 
     collab = db.query(models.DocumentCollaborator).filter(
