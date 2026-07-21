@@ -17,7 +17,7 @@ const INVADER_ROWS = 4;
 const INVADER_TICK_EVERY = 3; // les envahisseurs bougent moins vite que la boucle de jeu
 const PLAYER_ROW = ROWS - 1;
 
-const FIRE_COOLDOWN_MS = 500; // temps de rechargement entre deux tirs
+const FIRE_COOLDOWN_MS = 200; // temps de rechargement entre deux tirs
 const FIRE_COOLDOWN_TICKS = Math.max(1, Math.round(FIRE_COOLDOWN_MS / TICK_MS));
 
 type Vec = { x: number; y: number };
