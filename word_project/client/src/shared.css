@@ -438,7 +438,7 @@ body {
   @apply bg-gray-50;
 }
 .editor-title-input:focus {
-  background-color: var(--color-primary-light);
+  background-color: #60A5FA;
 }
 .editor-save-btn {
   @apply flex items-center gap-1.5 text-sm font-medium px-3 h-8 rounded-lg transition-all;
