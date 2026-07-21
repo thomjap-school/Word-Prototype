@@ -17,8 +17,8 @@ const INVADER_ROWS = 4;
 const INVADER_TICK_EVERY = 3; // les envahisseurs bougent moins vite que la boucle de jeu
 const PLAYER_ROW = ROWS - 1;
 
-const AUTO_FIRE_MS = 500; // le joueur tire automatiquement toutes les X ms
-const AUTO_FIRE_EVERY_TICK = Math.max(1, Math.round(AUTO_FIRE_MS / TICK_MS));
+const FIRE_COOLDOWN_MS = 500; // temps de rechargement entre deux tirs
+const FIRE_COOLDOWN_TICKS = Math.max(1, Math.round(FIRE_COOLDOWN_MS / TICK_MS));
 
 type Vec = { x: number; y: number };
 
@@ -28,6 +28,7 @@ interface GameState {
   invaders: Vec[];
   dir: 1 | -1;
   tick: number;
+  cooldownUntilTick: number; // tick à partir duquel on peut retirer
   gameOver: boolean;
   won: boolean;
   score: number;
@@ -51,6 +52,7 @@ function makeInitialState(): GameState {
     invaders: makeInvaders(),
     dir: 1,
     tick: 0,
+    cooldownUntilTick: 0,
     gameOver: false,
     won: false,
     score: 0,
@@ -93,7 +95,7 @@ export default function KonamiSpaceInvaders() {
     bufferRef.current = [];
   }, []);
 
-  // --- Contrôles du jeu (déplacement uniquement, le tir est automatique) ---
+  // --- Contrôles du jeu (déplacement + tir manuel avec cooldown) ---
   useEffect(() => {
     if (!active) return;
 
@@ -105,7 +107,7 @@ export default function KonamiSpaceInvaders() {
         return;
       }
 
-      if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
+      if (["ArrowLeft", "ArrowRight", " ", "Spacebar"].includes(e.key)) {
         e.preventDefault();
       }
 
@@ -115,6 +117,12 @@ export default function KonamiSpaceInvaders() {
         s.playerX = Math.max(0, s.playerX - 1);
       } else if (e.key === "ArrowRight") {
         s.playerX = Math.min(COLS - 1, s.playerX + 1);
+      } else if (e.key === " " || e.key === "Spacebar") {
+        // Bouger et tirer sont indépendants : le cooldown ne bloque que le tir
+        if (s.tick >= s.cooldownUntilTick) {
+          s.bullets.push({ x: s.playerX, y: PLAYER_ROW - 1 });
+          s.cooldownUntilTick = s.tick + FIRE_COOLDOWN_TICKS;
+        }
       }
     };
 
@@ -131,11 +139,6 @@ export default function KonamiSpaceInvaders() {
       if (s.gameOver) return;
 
       s.tick++;
-
-      // Tir automatique toutes les AUTO_FIRE_MS, indépendamment du déplacement
-      if (s.tick % AUTO_FIRE_EVERY_TICK === 0) {
-        s.bullets.push({ x: s.playerX, y: PLAYER_ROW - 1 });
-      }
 
       // Déplacement des balles (plusieurs peuvent coexister)
       const remainingBullets: Vec[] = [];
@@ -217,6 +220,8 @@ export default function KonamiSpaceInvaders() {
   if (!active) return null;
 
   const s = stateRef.current;
+  const cooldownRemainingTicks = Math.max(0, s.cooldownUntilTick - s.tick);
+  const canFire = cooldownRemainingTicks === 0;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90">
@@ -228,8 +233,11 @@ export default function KonamiSpaceInvaders() {
         <X size={28} />
       </button>
 
-      <div className="mb-2 font-mono text-green-400 text-sm tracking-widest">
-        SCORE: {s.score}
+      <div className="mb-2 flex items-center gap-3 font-mono text-green-400 text-sm tracking-widest">
+        <span>SCORE: {s.score}</span>
+        <span className={canFire ? "text-green-400" : "text-green-700"}>
+          {canFire ? "● PRÊT" : "○ RECHARGE"}
+        </span>
       </div>
 
       <canvas
@@ -251,7 +259,7 @@ export default function KonamiSpaceInvaders() {
       )}
 
       <div className="mt-3 font-mono text-green-600 text-xs">
-        ← → pour bouger — tir automatique
+        ← → pour bouger, Espace pour tirer (rechargement 0,5s)
       </div>
     </div>
   );
