@@ -426,8 +426,8 @@ body {
   transform: translateX(-2px);
 }
 .editor-title-input {
-  @apply text-sm font-medium bg-gray-50 border-none outline-none text-center rounded-md px-2 py-1 transition-colors;
-  color: #60A5FA;
+  @apply text-sm font-medium bg-gray-100 border-none outline-none text-center rounded-md px-2 py-1 transition-colors;
+  color: #000000;
   opacity: 1;
   position: absolute;
   left: 50%;
