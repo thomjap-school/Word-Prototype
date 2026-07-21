@@ -428,6 +428,8 @@ body {
 .editor-title-input {
   @apply text-sm font-medium bg-transparent border-none outline-none text-center rounded-md px-2 py-1 transition-colors;
   color: var(--color-text-strong);
+  color: #60A5FA;
+  opacity: 1;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -438,7 +440,7 @@ body {
   @apply bg-gray-50;
 }
 .editor-title-input:focus {
-  background-color: #60A5FA;
+  background-color: var(--color-primary-light);
 }
 .editor-save-btn {
   @apply flex items-center gap-1.5 text-sm font-medium px-3 h-8 rounded-lg transition-all;
