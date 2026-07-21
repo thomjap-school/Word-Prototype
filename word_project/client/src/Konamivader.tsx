@@ -17,11 +17,14 @@ const INVADER_ROWS = 4;
 const INVADER_TICK_EVERY = 3; // les envahisseurs bougent moins vite que la boucle de jeu
 const PLAYER_ROW = ROWS - 1;
 
+const AUTO_FIRE_MS = 500; // le joueur tire automatiquement toutes les X ms
+const AUTO_FIRE_EVERY_TICK = Math.max(1, Math.round(AUTO_FIRE_MS / TICK_MS));
+
 type Vec = { x: number; y: number };
 
 interface GameState {
   playerX: number;
-  bullet: Vec | null;
+  bullets: Vec[];
   invaders: Vec[];
   dir: 1 | -1;
   tick: number;
@@ -44,7 +47,7 @@ function makeInvaders(): Vec[] {
 function makeInitialState(): GameState {
   return {
     playerX: Math.floor(COLS / 2),
-    bullet: null,
+    bullets: [],
     invaders: makeInvaders(),
     dir: 1,
     tick: 0,
@@ -90,7 +93,7 @@ export default function KonamiSpaceInvaders() {
     bufferRef.current = [];
   }, []);
 
-  // --- Contrôles du jeu ---
+  // --- Contrôles du jeu (déplacement uniquement, le tir est automatique) ---
   useEffect(() => {
     if (!active) return;
 
@@ -102,7 +105,7 @@ export default function KonamiSpaceInvaders() {
         return;
       }
 
-      if (["ArrowLeft", "ArrowRight", " ", "Spacebar"].includes(e.key)) {
+      if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
         e.preventDefault();
       }
 
@@ -112,10 +115,6 @@ export default function KonamiSpaceInvaders() {
         s.playerX = Math.max(0, s.playerX - 1);
       } else if (e.key === "ArrowRight") {
         s.playerX = Math.min(COLS - 1, s.playerX + 1);
-      } else if (e.key === " " || e.key === "Spacebar") {
-        if (!s.bullet) {
-          s.bullet = { x: s.playerX, y: PLAYER_ROW - 1 };
-        }
       }
     };
 
@@ -133,22 +132,29 @@ export default function KonamiSpaceInvaders() {
 
       s.tick++;
 
-      // Balle du joueur
-      if (s.bullet) {
-        s.bullet.y -= 1;
-        if (s.bullet.y < 0) {
-          s.bullet = null;
-        } else {
-          const hitIndex = s.invaders.findIndex(
-            (inv) => inv.x === s.bullet!.x && inv.y === s.bullet!.y
-          );
-          if (hitIndex !== -1) {
-            s.invaders.splice(hitIndex, 1);
-            s.bullet = null;
-            s.score += 10;
-          }
-        }
+      // Tir automatique toutes les AUTO_FIRE_MS, indépendamment du déplacement
+      if (s.tick % AUTO_FIRE_EVERY_TICK === 0) {
+        s.bullets.push({ x: s.playerX, y: PLAYER_ROW - 1 });
       }
+
+      // Déplacement des balles (plusieurs peuvent coexister)
+      const remainingBullets: Vec[] = [];
+      for (const bullet of s.bullets) {
+        bullet.y -= 1;
+        if (bullet.y < 0) continue; // sortie de l'écran
+
+        const hitIndex = s.invaders.findIndex(
+          (inv) => inv.x === bullet.x && inv.y === bullet.y
+        );
+        if (hitIndex !== -1) {
+          s.invaders.splice(hitIndex, 1);
+          s.score += 10;
+          continue; // balle consommée par l'impact
+        }
+
+        remainingBullets.push(bullet);
+      }
+      s.bullets = remainingBullets;
 
       // Déplacement des envahisseurs (plus lent que la boucle principale)
       if (s.tick % INVADER_TICK_EVERY === 0 && s.invaders.length > 0) {
@@ -202,10 +208,10 @@ export default function KonamiSpaceInvaders() {
     ctx.fillStyle = "#facc15";
     ctx.fillRect(s.playerX * CELL + 3, PLAYER_ROW * CELL + 3, CELL - 6, CELL - 6);
 
-    if (s.bullet) {
-      ctx.fillStyle = "#f87171";
-      ctx.fillRect(s.bullet.x * CELL + CELL / 2 - 1, s.bullet.y * CELL, 2, CELL);
-    }
+    ctx.fillStyle = "#f87171";
+    s.bullets.forEach((bullet) => {
+      ctx.fillRect(bullet.x * CELL + CELL / 2 - 1, bullet.y * CELL, 2, CELL);
+    });
   });
 
   if (!active) return null;
@@ -245,7 +251,7 @@ export default function KonamiSpaceInvaders() {
       )}
 
       <div className="mt-3 font-mono text-green-600 text-xs">
-        ← → pour bouger, Espace pour tirer
+        ← → pour bouger — tir automatique
       </div>
     </div>
   );
