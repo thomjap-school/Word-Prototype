@@ -24,11 +24,23 @@ const PRESET_COLORS = [
 const FONTS = [
   { label: 'Par défaut', value: '' },
   { label: 'Arial', value: 'Arial' },
+  { label: 'Helvetica', value: 'Helvetica' },
   { label: 'Georgia', value: 'Georgia' },
   { label: 'Times New Roman', value: 'Times New Roman' },
   { label: 'Courier New', value: 'Courier New' },
   { label: 'Verdana', value: 'Verdana' },
+  { label: 'Trebuchet MS', value: 'Trebuchet MS' },
+  { label: 'Tahoma', value: 'Tahoma' },
+  { label: 'Segoe UI', value: 'Segoe UI' },
+  { label: 'Calibri', value: 'Calibri' },
+  { label: 'Garamond', value: 'Garamond' },
+  { label: 'Palatino', value: 'Palatino Linotype' },
+  { label: 'Century Gothic', value: 'Century Gothic' },
+  { label: 'Lucida Console', value: 'Lucida Console' },
+  { label: 'Impact', value: 'Impact' },
   { label: 'Comic Sans MS', value: 'Comic Sans MS' },
+  { label: 'Brush Script', value: 'Brush Script MT' },
+  { label: 'Papyrus', value: 'Papyrus' },
 ]
 
 export default function Toolbar({ editor }: Props) {
@@ -141,7 +153,7 @@ export default function Toolbar({ editor }: Props) {
         title="Police"
       >
         {FONTS.map((font) => (
-          <option key={font.label} value={font.value}>
+          <option key={font.label} value={font.value} style={{ fontFamily: font.value || 'inherit' }}>
             {font.label}
           </option>
         ))}
