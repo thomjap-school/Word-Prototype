@@ -143,16 +143,18 @@ def invite_collaborator(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(security.get_current_user),
 ):
-    doc = db.query(models.Document).filter(models.Document.id == document_id).first()
-    # N'importe quel collaborateur (pas seulement le propriétaire) peut inviter
-    if not doc or not _has_access(doc, current_user):
+    doc = db.query(models.Document).filter(
+        models.Document.id == document_id,
+        models.Document.owner_id == current_user.id,
+    ).first()
+    if not doc:
         raise HTTPException(status_code=404, detail="Document introuvable")
 
     invited_user = db.query(models.User).filter(models.User.email == payload.email).first()
     if not invited_user:
         raise HTTPException(status_code=404, detail="Aucun compte trouvé avec cet email")
-    if invited_user.id == doc.owner_id:
-        raise HTTPException(status_code=400, detail="Cette personne est déjà propriétaire de ce document")
+    if invited_user.id == current_user.id:
+        raise HTTPException(status_code=400, detail="Tu es déjà propriétaire de ce document")
     already = db.query(models.DocumentCollaborator).filter(
         models.DocumentCollaborator.document_id == document_id,
         models.DocumentCollaborator.user_id == invited_user.id,
