@@ -7,6 +7,9 @@ import TextAlign from '@tiptap/extension-text-align'
 import { TextStyle } from '@tiptap/extension-text-style'
 import { Color } from '@tiptap/extension-color'
 import FontFamily from '@tiptap/extension-font-family'
+import Highlight from '@tiptap/extension-highlight'
+import Link from '@tiptap/extension-link'
+import CharacterCount from '@tiptap/extension-character-count'
 import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import * as Y from 'yjs'
@@ -142,6 +145,9 @@ function Editor() {
           TextStyle,
           Color,
           FontFamily,
+          Highlight,
+          Link.configure({ openOnClick: false }),
+          CharacterCount,
           Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
           Collaboration.configure({ document: ydoc }),
           CollaborationCaret.configure({ provider, user: currentUser }),

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Editor, useEditorState } from '@tiptap/react'
 import {
-  Bold, Italic, Underline, List, Heading1, Heading2,
-  Strikethrough, AlignLeft, AlignCenter, AlignRight, Undo, Redo, Palette
+  Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2,
+  Strikethrough, AlignLeft, AlignCenter, AlignRight, Undo, Redo, Palette,
+  Highlighter, Link as LinkIcon, Quote, Minus, Eraser
 } from 'lucide-react'
 
 type Props = {
@@ -46,10 +47,16 @@ export default function Toolbar({ editor }: Props) {
         isUnderline: ctx.editor.isActive('underline'),
         isStrike: ctx.editor.isActive('strike'),
         isBulletList: ctx.editor.isActive('bulletList'),
+        isOrderedList: ctx.editor.isActive('orderedList'),
+        isBlockquote: ctx.editor.isActive('blockquote'),
+        isHighlight: ctx.editor.isActive('highlight'),
+        isLink: ctx.editor.isActive('link'),
         isAlignLeft: ctx.editor.isActive({ textAlign: 'left' }),
         isAlignCenter: ctx.editor.isActive({ textAlign: 'center' }),
         isAlignRight: ctx.editor.isActive({ textAlign: 'right' }),
         color: ctx.editor.getAttributes('textStyle').color as string | undefined,
+        words: ctx.editor.storage.characterCount?.words() ?? 0,
+        characters: ctx.editor.storage.characterCount?.characters() ?? 0,
       }
     },
   })
@@ -99,6 +106,20 @@ export default function Toolbar({ editor }: Props) {
     })
   }
 
+  const handleLinkToggle = () => {
+    if (editorState.isLink) {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run()
+      return
+    }
+    const url = window.prompt('Adresse du lien (https://...)')
+    if (!url) return
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+  }
+
+  const handleClearFormatting = () => {
+    withFallback(() => editor.chain().focus().clearNodes().unsetAllMarks().run())
+  }
+
   return (
     <div className="toolbar">
 
@@ -143,6 +164,13 @@ export default function Toolbar({ editor }: Props) {
       >
         <Heading2 size={15} />
       </button>
+      <button
+        className={btn(editorState.isBlockquote)}
+        onClick={() => withFallback(() => editor.chain().focus().toggleBlockquote().run())}
+        title="Citation"
+      >
+        <Quote size={15} />
+      </button>
 
       <div className="toolbar-divider" />
 
@@ -174,6 +202,20 @@ export default function Toolbar({ editor }: Props) {
         title="Barré"
       >
         <Strikethrough size={15} />
+      </button>
+      <button
+        className={btn(editorState.isHighlight)}
+        onClick={() => withFallback(() => editor.chain().focus().toggleHighlight().run())}
+        title="Surligner"
+      >
+        <Highlighter size={15} />
+      </button>
+      <button
+        className={btn(editorState.isLink)}
+        onClick={handleLinkToggle}
+        title="Lien"
+      >
+        <LinkIcon size={15} />
       </button>
 
       {/* Color picker */}
@@ -229,6 +271,13 @@ export default function Toolbar({ editor }: Props) {
       >
         <List size={15} />
       </button>
+      <button
+        className={btn(editorState.isOrderedList)}
+        onClick={() => withFallback(() => editor.chain().focus().toggleOrderedList().run())}
+        title="Liste numérotée"
+      >
+        <ListOrdered size={15} />
+      </button>
 
       <div className="toolbar-divider" />
 
@@ -254,6 +303,31 @@ export default function Toolbar({ editor }: Props) {
       >
         <AlignRight size={15} />
       </button>
+
+      <div className="toolbar-divider" />
+
+      {/* Insert / cleanup */}
+      <button
+        className={btn(false)}
+        onClick={() => editor.chain().focus().setHorizontalRule().run()}
+        title="Ligne horizontale"
+      >
+        <Minus size={15} />
+      </button>
+      <button
+        className={btn(false)}
+        onClick={handleClearFormatting}
+        title="Effacer la mise en forme"
+      >
+        <Eraser size={15} />
+      </button>
+
+      <div className="toolbar-spacer" />
+
+      {/* Word count */}
+      <span className="toolbar-wordcount">
+        {editorState.words} mots · {editorState.characters} car.
+      </span>
 
     </div>
   )

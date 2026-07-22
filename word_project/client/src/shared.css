@@ -974,3 +974,11 @@ body {
   .deco--r2 { width: 54px; height: 54px; right: -6px; }
   .deco--b1, .deco--b2 { opacity: 0.5; }
 }
+
+.toolbar-spacer {
+  @apply flex-1;
+}
+.toolbar-wordcount {
+  @apply text-[11px] text-gray-400 pr-1 whitespace-nowrap;
+  font-family: var(--font-mono);
+}
