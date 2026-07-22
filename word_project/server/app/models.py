@@ -18,6 +18,12 @@ class User(Base):
     is_verified = Column(Boolean, nullable=False, default=False)
     verification_token = Column(String, index=True, nullable=True)
     verification_token_expires_at = Column(DateTime(timezone=True), nullable=True)
+    # Rempli quand l'utilisateur demande la suppression de son compte.
+    # Tant que ce champ est rempli et que le délai de grâce (3 jours,
+    # voir app/routers/auth.py) n'est pas dépassé, le compte peut être
+    # réactivé via /auth/reactivate. Passé ce délai, le compte est purgé
+    # définitivement (vérification paresseuse, au prochain login/reactivate).
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     documents = relationship("Document", back_populates="owner")
@@ -39,6 +45,7 @@ class Document(Base):
         "DocumentCollaborator",
         back_populates="document",
         cascade="all, delete-orphan",
+        foreign_keys="DocumentCollaborator.document_id",
     )
 
     @property
@@ -53,7 +60,19 @@ class DocumentCollaborator(Base):
     id = Column(Integer, primary_key=True, index=True)
     document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    # Qui a invité ce collaborateur. Nullable car une personne qui rejoint
+    # via un lien de partage n'a pas d'inviteur direct (voir routes/documents.py,
+    # join_via_share_link).
+    invited_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    document = relationship("Document", back_populates="collaborator_links")
-    user = relationship("User")
+    document = relationship(
+        "Document",
+        back_populates="collaborator_links",
+        foreign_keys=[document_id],
+    )
+    # Deux ForeignKey vers "users" ici (user_id et invited_by_id) : on doit
+    # préciser foreign_keys sur chaque relation pour lever l'ambiguïté,
+    # sinon SQLAlchemy plante au démarrage.
+    user = relationship("User", foreign_keys=[user_id])
+    invited_by = relationship("User", foreign_keys=[invited_by_id])

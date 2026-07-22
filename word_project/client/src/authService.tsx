@@ -29,9 +29,24 @@ export interface PasswordChangePayload {
   new_password: string;
 }
 
+// Levée quand le backend répond 410 : compte marqué supprimé mais encore
+// dans le délai de grâce de 3 jours. Le frontend doit alors proposer la
+// réactivation plutôt qu'afficher une simple erreur de connexion.
+export class AccountPendingDeletionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AccountPendingDeletionError";
+  }
+}
+
 async function parseErrorOrJson(res: Response) {
   const data = await res.json().catch(() => null);
   if (!res.ok) {
+    if (res.status === 410) {
+      throw new AccountPendingDeletionError(
+        data?.detail || "Ce compte est en attente de suppression"
+      );
+    }
     throw new Error(data?.detail || "Une erreur est survenue");
   }
   return data;
@@ -43,6 +58,20 @@ function storeFullName(user: UserOut) {
 
 export async function login(payload: LoginPayload): Promise<string> {
   const res = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = await parseErrorOrJson(res);
+  localStorage.setItem("token", data.access_token);
+  storeFullName(await getCurrentUser());
+  return data.access_token;
+}
+
+// À appeler quand login() a levé une AccountPendingDeletionError et que
+// l'utilisateur confirme vouloir réactiver son compte (mêmes identifiants).
+export async function reactivateAccount(payload: LoginPayload): Promise<string> {
+  const res = await fetch(`${API_URL}/auth/reactivate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -125,6 +154,21 @@ export async function changePassword(payload: PasswordChangePayload): Promise<vo
     const data = await res.json().catch(() => null);
     throw new Error(data?.detail || "Une erreur est survenue");
   }
+}
+
+// Suppression douce du compte courant (délai de grâce de 3 jours,
+// réactivable via reactivateAccount()). Déconnecte l'utilisateur localement
+// juste après, puisque son compte n'est plus valide pour continuer à naviguer.
+export async function deleteAccount(): Promise<void> {
+  const res = await fetch(`${API_URL}/auth/me`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.detail || "Une erreur est survenue");
+  }
+  logout();
 }
 
 export function logout() {
