@@ -143,18 +143,15 @@ def invite_collaborator(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(security.get_current_user),
 ):
-    doc = db.query(models.Document).filter(
-        models.Document.id == document_id,
-        models.Document.owner_id == current_user.id,
-    ).first()
-    if not doc:
+    doc = db.query(models.Document).filter(models.Document.id == document_id).first()
+    if not doc or not _has_access(doc, current_user):
         raise HTTPException(status_code=404, detail="Document introuvable")
 
     invited_user = db.query(models.User).filter(models.User.email == payload.email).first()
     if not invited_user:
         raise HTTPException(status_code=404, detail="Aucun compte trouvé avec cet email")
-    if invited_user.id == current_user.id:
-        raise HTTPException(status_code=400, detail="Tu es déjà propriétaire de ce document")
+    if invited_user.id == doc.owner_id:
+        raise HTTPException(status_code=400, detail="Cette personne est déjà propriétaire de ce document")
     already = db.query(models.DocumentCollaborator).filter(
         models.DocumentCollaborator.document_id == document_id,
         models.DocumentCollaborator.user_id == invited_user.id,
@@ -162,7 +159,11 @@ def invite_collaborator(
     if already:
         raise HTTPException(status_code=400, detail="Cette personne est déjà collaboratrice")
 
-    db.add(models.DocumentCollaborator(document_id=document_id, user_id=invited_user.id))
+    db.add(models.DocumentCollaborator(
+        document_id=document_id,
+        user_id=invited_user.id,
+        invited_by_id=current_user.id,
+    ))
     db.commit()
     db.refresh(doc)
     return doc
@@ -175,11 +176,6 @@ def remove_collaborator(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(security.get_current_user),
 ):
-    # Avant : seul le propriétaire (owner_id == current_user.id) pouvait supprimer.
-    # Maintenant : le propriétaire ET n'importe quel collaborateur (invité) peuvent supprimer
-    # un collaborateur, grâce à _has_access. L'admin, lui, n'est jamais dans la table
-    # DocumentCollaborator (voir models.Document.collaborators), donc il ne peut jamais
-    # être matché ni supprimé via cette route.
     doc = db.query(models.Document).filter(models.Document.id == document_id).first()
     if not doc or not _has_access(doc, current_user):
         raise HTTPException(status_code=404, detail="Document introuvable")
@@ -190,6 +186,21 @@ def remove_collaborator(
     ).first()
     if not collab:
         raise HTTPException(status_code=404, detail="Collaborateur introuvable")
+
+    # Trois cas autorisés :
+    # 1. Le propriétaire peut retirer n'importe quel collaborateur.
+    # 2. Un collaborateur peut retirer les personnes qu'il a lui-même invitées.
+    # 3. Un collaborateur peut se retirer lui-même (quitter la collaboration),
+    #    même si ce n'est pas lui qui a invité ce compte (ex: rejoint via lien
+    #    de partage, ou invité par quelqu'un d'autre).
+    is_owner = current_user.id == doc.owner_id
+    is_inviter = collab.invited_by_id == current_user.id
+    is_self = current_user.id == user_id
+    if not is_owner and not is_inviter and not is_self:
+        raise HTTPException(
+            status_code=403,
+            detail="Tu ne peux retirer que les collaborateurs que tu as toi-même invités",
+        )
 
     db.delete(collab)
     db.commit()
@@ -234,7 +245,11 @@ def join_via_share_link(
             models.DocumentCollaborator.user_id == current_user.id,
         ).first()
         if not already:
-            db.add(models.DocumentCollaborator(document_id=doc.id, user_id=current_user.id))
+            db.add(models.DocumentCollaborator(
+                document_id=doc.id,
+                user_id=current_user.id,
+                invited_by_id=None,
+            ))
             db.commit()
             db.refresh(doc)
 
