@@ -1,7 +1,7 @@
 import { useEffect, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, Mail, Lock, LoaderCircle, Check, LogOut } from "lucide-react";
-import { getCurrentUser, updateProfile, changePassword, logout, type UserOut } from "./authService";
+import { ArrowLeft, User, Mail, Lock, LoaderCircle, Check, LogOut, Trash2 } from "lucide-react";
+import { getCurrentUser, updateProfile, changePassword, deleteAccount, logout, type UserOut } from "./authService";
 import MusicPlayer from "./MusicPlayer";
 import MobileMenu from "./MobileMenu";
 
@@ -32,6 +32,11 @@ export default function ProfilePage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+
+  // Suppression de compte
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     getCurrentUser()
@@ -85,6 +90,24 @@ export default function ProfilePage() {
       setPasswordError(err instanceof Error ? err.message : "Échec du changement de mot de passe");
     } finally {
       setSavingPassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteError(null);
+    setDeletingAccount(true);
+    try {
+      await deleteAccount();
+      // deleteAccount() a déjà nettoyé le token localement (voir authService).
+      navigate("/login", {
+        state: {
+          accountDeleted: true,
+          message: "Ton compte a été supprimé. Tu as 3 jours pour le réactiver en te reconnectant.",
+        },
+      });
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : "Échec de la suppression du compte");
+      setDeletingAccount(false);
     }
   };
 
@@ -193,7 +216,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Mot de passe */}
-        <div className="profile-card">
+        <div className="profile-card mb-6">
           <h2 className="profile-section-title">Mot de passe</h2>
           <p className="auth-subtitle">Change ton mot de passe de connexion</p>
 
@@ -260,6 +283,53 @@ export default function ProfilePage() {
               Changer le mot de passe
             </button>
           </form>
+        </div>
+
+        {/* Zone dangereuse : suppression de compte */}
+        <div className="profile-card">
+          <h2 className="profile-section-title">Supprimer mon compte</h2>
+          <p className="auth-subtitle">
+            Ton compte sera désactivé immédiatement. Tu auras 3 jours pour le
+            réactiver en te reconnectant, passé ce délai il sera définitivement supprimé.
+          </p>
+
+          {deleteError && <div className="alert alert--error">{deleteError}</div>}
+
+          {!confirmingDelete ? (
+            <button
+              type="button"
+              className="btn-danger"
+              onClick={() => setConfirmingDelete(true)}
+            >
+              <Trash2 className="w-4 h-4" />
+              Supprimer mon compte
+            </button>
+          ) : (
+            <div className="danger-confirm">
+              <p className="danger-confirm-text">
+                Es-tu sûr ? Tu seras déconnecté immédiatement.
+              </p>
+              <div className="danger-confirm-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setConfirmingDelete(false)}
+                  disabled={deletingAccount}
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  className="btn-danger"
+                  onClick={handleDeleteAccount}
+                  disabled={deletingAccount}
+                >
+                  {deletingAccount && <LoaderCircle className="w-4 h-4 animate-spin" />}
+                  Confirmer la suppression
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

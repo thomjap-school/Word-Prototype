@@ -1,7 +1,7 @@
 import { useState, type SyntheticEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { login, resendVerification } from "./authService";
+import { login, resendVerification, reactivateAccount, AccountPendingDeletionError } from "./authService";
 import GoogleSignInButton from "./GoogleSignInButton";
 
 const UNVERIFIED_MESSAGE = "Confirme ton email avant de te connecter";
@@ -9,7 +9,12 @@ const UNVERIFIED_MESSAGE = "Confirme ton email avant de te connecter";
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const justRegistered = (location.state as { registered?: boolean } | null)?.registered;
+  const locationState = location.state as
+    | { registered?: boolean; accountDeleted?: boolean; message?: string }
+    | null;
+  const justRegistered = locationState?.registered;
+  const accountDeletedMessage = locationState?.accountDeleted ? locationState.message : null;
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -17,18 +22,43 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [resendState, setResendState] = useState<"idle" | "sending" | "sent">("idle");
 
+  // Rempli quand le backend répond 410 (compte en attente de suppression) :
+  // on affiche alors un bouton "réactiver" à la place du message d'erreur classique.
+  const [pendingDeletion, setPendingDeletion] = useState(false);
+  const [reactivating, setReactivating] = useState(false);
+
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setResendState("idle");
+    setPendingDeletion(false);
     setLoading(true);
     try {
       await login({ email, password });
       navigate("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Échec de la connexion");
+      if (err instanceof AccountPendingDeletionError) {
+        setPendingDeletion(true);
+        setError(err.message);
+      } else {
+        setError(err instanceof Error ? err.message : "Échec de la connexion");
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    setError(null);
+    setReactivating(true);
+    try {
+      await reactivateAccount({ email, password });
+      navigate("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Échec de la réactivation");
+      setPendingDeletion(false);
+    } finally {
+      setReactivating(false);
     }
   };
 
@@ -58,6 +88,12 @@ export default function LoginPage() {
           </div>
         )}
 
+        {accountDeletedMessage && !error && (
+          <div className="alert alert--success alert--with-icon">
+            {accountDeletedMessage}
+          </div>
+        )}
+
         {error && (
           <div className="alert alert--error">
             {error}
@@ -78,6 +114,20 @@ export default function LoginPage() {
                   </button>
                 )}
               </>
+            )}
+
+            {pendingDeletion && (
+              <div style={{ marginTop: "0.5rem" }}>
+                <button
+                  type="button"
+                  onClick={handleReactivate}
+                  disabled={reactivating}
+                  className="btn-primary"
+                >
+                  {reactivating && <LoaderCircle className="w-4 h-4 animate-spin" />}
+                  Réactiver mon compte
+                </button>
+              </div>
             )}
           </div>
         )}

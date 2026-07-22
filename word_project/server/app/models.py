@@ -18,6 +18,12 @@ class User(Base):
     is_verified = Column(Boolean, nullable=False, default=False)
     verification_token = Column(String, index=True, nullable=True)
     verification_token_expires_at = Column(DateTime(timezone=True), nullable=True)
+    # Rempli quand l'utilisateur demande la suppression de son compte.
+    # Tant que ce champ est rempli et que le délai de grâce (3 jours,
+    # voir app/routers/auth.py) n'est pas dépassé, le compte peut être
+    # réactivé via /auth/reactivate. Passé ce délai, le compte est purgé
+    # définitivement (vérification paresseuse, au prochain login/reactivate).
+    deleted_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     documents = relationship("Document", back_populates="owner")

@@ -982,3 +982,43 @@ body {
   @apply text-[11px] text-gray-400 pr-1 whitespace-nowrap;
   font-family: var(--font-mono);
 }
+
+/* ==========================================================================
+   Suppression de compte (Profil)
+   ========================================================================== */
+.btn-danger {
+  @apply w-full flex items-center justify-center gap-2 text-sm font-medium py-2 rounded-md transition-all border border-red-200 text-red-600 bg-red-50;
+}
+.btn-danger:hover:not(:disabled) {
+  @apply bg-red-100;
+}
+.btn-danger:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn-danger:disabled {
+  @apply opacity-60;
+}
+
+.btn-secondary {
+  @apply w-full flex items-center justify-center gap-2 text-sm font-medium py-2 rounded-md transition-all border border-gray-300 text-gray-700 bg-white;
+}
+.btn-secondary:hover:not(:disabled) {
+  @apply bg-gray-50;
+}
+.btn-secondary:disabled {
+  @apply opacity-60;
+}
+
+.danger-confirm {
+  @apply flex flex-col gap-3 mt-2;
+}
+.danger-confirm-text {
+  @apply text-sm text-gray-600;
+}
+.danger-confirm-actions {
+  @apply flex gap-2;
+}
+.danger-confirm-actions .btn-secondary,
+.danger-confirm-actions .btn-danger {
+  @apply w-auto flex-1;
+}

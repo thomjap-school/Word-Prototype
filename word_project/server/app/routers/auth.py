@@ -11,6 +11,7 @@ from app.email import send_verification_email
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 VERIFICATION_TOKEN_TTL = timedelta(hours=24)
+ACCOUNT_DELETION_GRACE_PERIOD = timedelta(days=3)
 
 
 def _issue_verification_token(user: models.User) -> str:
@@ -18,6 +19,38 @@ def _issue_verification_token(user: models.User) -> str:
     user.verification_token = token
     user.verification_token_expires_at = datetime.now(timezone.utc) + VERIFICATION_TOKEN_TTL
     return token
+
+
+def _purge_account_if_expired(db: Session, user: models.User) -> bool:
+    """
+    Si le compte est marqué supprimé depuis plus de 3 jours, le purge
+    définitivement de la base (vérification paresseuse : on ne fait ça
+    qu'au moment où quelqu'un tente de s'en servir, pas de tâche planifiée).
+    Retourne True si le compte vient d'être purgé.
+    """
+    if user.deleted_at is None:
+        return False
+
+    deleted_at = user.deleted_at
+    if deleted_at.tzinfo is None:
+        deleted_at = deleted_at.replace(tzinfo=timezone.utc)
+
+    if datetime.now(timezone.utc) < deleted_at + ACCOUNT_DELETION_GRACE_PERIOD:
+        return False
+
+    # Nettoyage des liens de collaboration avant de supprimer le compte,
+    # sinon on laisse des lignes qui pointent vers un user_id inexistant
+    # (ce qui plante la propriété Document.collaborators).
+    db.query(models.DocumentCollaborator).filter(
+        models.DocumentCollaborator.user_id == user.id
+    ).delete()
+    db.query(models.DocumentCollaborator).filter(
+        models.DocumentCollaborator.invited_by_id == user.id
+    ).update({"invited_by_id": None})
+
+    db.delete(user)
+    db.commit()
+    return True
 
 
 @router.post(
@@ -63,11 +96,57 @@ def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
             status_code=401,
             detail="Email ou mot de passe incorrect"
         )
+
+    # Compte marqué comme supprimé : soit on le purge (délai dépassé),
+    # soit on refuse la connexion classique et on renvoie un statut dédié
+    # (410 Gone) pour que le frontend affiche le bouton "réactiver" au lieu
+    # du login normal.
+    if user.deleted_at is not None:
+        purged = _purge_account_if_expired(db, user)
+        if purged:
+            raise HTTPException(
+                status_code=401,
+                detail="Email ou mot de passe incorrect"
+            )
+        raise HTTPException(
+            status_code=410,
+            detail="Ce compte est en attente de suppression. Réactive-le pour te reconnecter.",
+        )
+
     if not user.is_verified:
         raise HTTPException(
             status_code=403,
             detail="Confirme ton email avant de te connecter",
         )
+    access_token = security.create_access_token(data={"sub": str(user.id)})
+    return {"access_token": access_token}
+
+
+@router.post("/reactivate", response_model=schemas.Token)
+def reactivate_account(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(
+        models.User.email == credentials.email
+    ).first()
+    if not user or not user.hashed_password or not security.verify_password(
+        credentials.password,
+        user.hashed_password
+    ):
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+
+    if user.deleted_at is None:
+        raise HTTPException(status_code=400, detail="Ce compte n'est pas en attente de suppression")
+
+    purged = _purge_account_if_expired(db, user)
+    if purged:
+        raise HTTPException(
+            status_code=404,
+            detail="Ce compte a été définitivement supprimé, il n'est plus récupérable",
+        )
+
+    user.deleted_at = None
+    db.commit()
+    db.refresh(user)
+
     access_token = security.create_access_token(data={"sub": str(user.id)})
     return {"access_token": access_token}
 
@@ -166,6 +245,27 @@ def update_current_user(
     db.commit()
     db.refresh(current_user)
     return current_user
+
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+def delete_current_user(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(security.get_current_user),
+):
+    # On bloque la suppression si l'utilisateur est propriétaire de documents,
+    # pour éviter des documents orphelins (pas de mécanisme de transfert de
+    # propriété pour l'instant).
+    owns_documents = db.query(models.Document).filter(
+        models.Document.owner_id == current_user.id
+    ).count() > 0
+    if owns_documents:
+        raise HTTPException(
+            status_code=400,
+            detail="Supprime ou transfère d'abord tes documents avant de supprimer ton compte",
+        )
+
+    current_user.deleted_at = datetime.now(timezone.utc)
+    db.commit()
 
 
 @router.put("/me/password", status_code=status.HTTP_204_NO_CONTENT)
