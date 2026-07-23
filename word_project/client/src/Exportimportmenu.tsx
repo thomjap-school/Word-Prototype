@@ -1,12 +1,30 @@
 import { useRef, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { Download, Upload, FileText, LoaderCircle } from "lucide-react";
-import { exportToPdf, importDocx, importPdf } from "./Exportimport";
+import {
+  exportToPdf,
+  exportToDocx,
+  exportToTxt,
+  exportToMarkdown,
+  exportToRtf,
+  exportToOdt,
+  importDocx,
+  importPdf,
+} from "./Exportimport";
 
 interface ExportImportMenuProps {
   editor: Editor;
   title: string;
 }
+
+const EXPORT_FORMATS = [
+  { label: "PDF", handler: exportToPdf },
+  { label: "Word (.docx)", handler: exportToDocx },
+  { label: "Texte (.txt)", handler: exportToTxt },
+  { label: "Markdown (.md)", handler: exportToMarkdown },
+  { label: "RTF (.rtf)", handler: exportToRtf },
+  { label: "OpenDocument (.odt)", handler: exportToOdt },
+] as const;
 
 export default function ExportImportMenu({
   editor,
@@ -18,8 +36,8 @@ export default function ExportImportMenu({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleExportPdf = () => {
-    exportToPdf(editor.getHTML(), title);
+  const handleExport = (handler: (html: string, filename: string) => void | Promise<void>) => {
+    handler(editor.getHTML(), title);
     setExportOpen(false);
   };
 
@@ -97,10 +115,16 @@ export default function ExportImportMenu({
 
         {exportOpen && (
           <div className="export-dropdown">
-            <button onClick={handleExportPdf} className="export-dropdown-item">
-              <FileText size={14} />
-              PDF
-            </button>
+            {EXPORT_FORMATS.map((format) => (
+              <button
+                key={format.label}
+                onClick={() => handleExport(format.handler)}
+                className="export-dropdown-item"
+              >
+                <FileText size={14} />
+                {format.label}
+              </button>
+            ))}
           </div>
         )}
       </div>
