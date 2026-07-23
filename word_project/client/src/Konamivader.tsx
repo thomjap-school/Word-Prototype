@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { X } from 'lucide-react';
 
 const KONAMI_CODE = [
-  "a", "b", "ArrowRight", "ArrowLeft",
-  "ArrowRight", "ArrowLeft", "ArrowDown",
-  "ArrowUp", "ArrowDown", "ArrowUp",
-]
+  'a', 'b', 'ArrowRight', 'ArrowLeft',
+  'ArrowRight', 'ArrowLeft', 'ArrowDown',
+  'ArrowDown', 'ArrowUp', 'ArrowUp',
+].map((k) => k.toLowerCase());
 
 const COLS = 16;
 const ROWS = 16;
