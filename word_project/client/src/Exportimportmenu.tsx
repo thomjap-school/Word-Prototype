@@ -23,6 +23,18 @@ export default function ExportImportMenu({
     setExportOpen(false);
   };
 
+  const handleExportMarkdown = () => {
+    const markdownContent = editor.storage.markdown.getMarkdown();
+    const blob = new Blob([markdownContent], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title || "document"}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setExportOpen(false);
+  };
+
   const handleImportClick = () => {
     setImportError(null);
     fileInputRef.current?.click();
@@ -100,6 +112,10 @@ export default function ExportImportMenu({
             <button onClick={handleExportPdf} className="export-dropdown-item">
               <FileText size={14} />
               PDF
+            </button>
+            <button onClick={handleExportMarkdown} className="export-dropdown-item">
+              <FileText size={14} />
+              Markdown (.md)
             </button>
           </div>
         )}
