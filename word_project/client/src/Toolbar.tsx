@@ -98,24 +98,13 @@ export default function Toolbar({ editor }: Props) {
     setColorOpen(false)
   }
 
-  // Si rien n'est sélectionné, applique la commande à tout le document.
-  // Si une partie précise est sélectionnée, elle seule est affectée.
-  const withFallback = (run: () => void) => {
-    if (editor.state.selection.empty) {
-      editor.chain().focus().selectAll().run()
-    }
-    run()
-  }
-
   const handleFontChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const font = e.target.value
-    withFallback(() => {
-      if (font) {
-        editor.chain().focus().setFontFamily(font).run()
-      } else {
-        editor.chain().focus().unsetFontFamily().run()
-      }
-    })
+    if (font) {
+      editor.chain().focus().setFontFamily(font).run()
+    } else {
+      editor.chain().focus().unsetFontFamily().run()
+    }
   }
 
   const handleLinkToggle = () => {
@@ -164,14 +153,14 @@ export default function Toolbar({ editor }: Props) {
       {/* Headings */}
       <button
         className={btn(editorState.isHeading1)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleHeading({ level: 1 }).run())}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
         title="Titre 1"
       >
         <Heading1 size={15} />
       </button>
       <button
         className={btn(editorState.isHeading2)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleHeading({ level: 2 }).run())}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
         title="Titre 2"
       >
         <Heading2 size={15} />
@@ -189,28 +178,28 @@ export default function Toolbar({ editor }: Props) {
       {/* Text style */}
       <button
         className={btn(editorState.isBold)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleBold().run())}
+        onClick={() => editor.chain().focus().toggleBold().run()}
         title="Gras"
       >
         <Bold size={15} />
       </button>
       <button
         className={btn(editorState.isItalic)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleItalic().run())}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
         title="Italique"
       >
         <Italic size={15} />
       </button>
       <button
         className={btn(editorState.isUnderline)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleUnderline().run())}
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
         title="Souligné"
       >
         <Underline size={15} />
       </button>
       <button
         className={btn(editorState.isStrike)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleStrike().run())}
+        onClick={() => editor.chain().focus().toggleStrike().run()}
         title="Barré"
       >
         <Strikethrough size={15} />
@@ -278,7 +267,7 @@ export default function Toolbar({ editor }: Props) {
       {/* Lists */}
       <button
         className={btn(editorState.isBulletList)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleBulletList().run())}
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
         title="Liste à puces"
       >
         <List size={15} />
@@ -296,21 +285,21 @@ export default function Toolbar({ editor }: Props) {
       {/* Alignment */}
       <button
         className={btn(editorState.isAlignLeft)}
-        onClick={() => withFallback(() => editor.chain().focus().setTextAlign('left').run())}
+        onClick={() => editor.chain().focus().setTextAlign('left').run()}
         title="Aligner à gauche"
       >
         <AlignLeft size={15} />
       </button>
       <button
         className={btn(editorState.isAlignCenter)}
-        onClick={() => withFallback(() => editor.chain().focus().setTextAlign('center').run())}
+        onClick={() => editor.chain().focus().setTextAlign('center').run()}
         title="Centrer"
       >
         <AlignCenter size={15} />
       </button>
       <button
         className={btn(editorState.isAlignRight)}
-        onClick={() => withFallback(() => editor.chain().focus().setTextAlign('right').run())}
+        onClick={() => editor.chain().focus().setTextAlign('right').run()}
         title="Aligner à droite"
       >
         <AlignRight size={15} />

@@ -24,6 +24,8 @@ import {
   updateDocumentContent,
   type Collaborator,
 } from './documentService'
+import { Markdown } from '@tiptap/markdown';
+
 
 // Même origine que la page (protocole + host) : passe par le proxy Vite
 // '/collab-ws' -> collab:1234, ce qui permet de tout exposer via un seul
@@ -151,6 +153,7 @@ function Editor() {
           Placeholder.configure({ placeholder: 'Commence à écrire ici...' }),
           Collaboration.configure({ document: ydoc }),
           CollaborationCaret.configure({ provider, user: currentUser }),
+          Markdown,
         ]
       : [],
   }, [ydoc])
@@ -313,6 +316,8 @@ function Editor() {
       )}
     </div>
   )
+
 }
+
 
 export default Editor
