@@ -5,7 +5,7 @@ const KONAMI_CODE = [
   "a", "b", "ArrowRight", "ArrowLeft",
   "ArrowRight", "ArrowLeft", "ArrowDown",
   "ArrowUp", "ArrowDown", "ArrowUp",
-].map((k) => k.toLowerCase());
+]
 
 const COLS = 16;
 const ROWS = 16;
