@@ -17,6 +17,9 @@ const INVADER_ROWS = 4;
 const INVADER_TICK_EVERY = 3; // les envahisseurs bougent moins vite que la boucle de jeu
 const PLAYER_ROW = ROWS - 1;
 
+const FIRE_COOLDOWN_MS = 300; // temps de rechargement entre deux tirs
+const FIRE_COOLDOWN_TICKS = Math.max(1, Math.round(FIRE_COOLDOWN_MS / TICK_MS));
+
 type Vec = { x: number; y: number };
 
 interface GameState {
@@ -25,6 +28,7 @@ interface GameState {
   invaders: Vec[];
   dir: 1 | -1;
   tick: number;
+  cooldownUntilTick: number; // tick à partir duquel on peut retirer
   gameOver: boolean;
   won: boolean;
   score: number;
@@ -48,6 +52,7 @@ function makeInitialState(): GameState {
     invaders: makeInvaders(),
     dir: 1,
     tick: 0,
+    cooldownUntilTick: 0,
     gameOver: false,
     won: false,
     score: 0,
@@ -66,23 +71,22 @@ export default function KonamiSpaceInvaders() {
     if (active) return; // pas besoin d'écouter pendant que le jeu tourne
 
     const onKeyDown = (e: KeyboardEvent) => {
-    const key = e.key.toLowerCase();
-    const buffer = [...bufferRef.current, key].slice(-KONAMI_CODE.length);
-    bufferRef.current = buffer;
-    console.log("touche:", e.key, "→", key, "| buffer:", buffer); // debug temporaire
+      const key = e.key.toLowerCase();
+      const buffer = [...bufferRef.current, key].slice(-KONAMI_CODE.length);
+      bufferRef.current = buffer;
 
-    if (
-      buffer.length === KONAMI_CODE.length &&
-      buffer.every((k, i) => k === KONAMI_CODE[i])
-    ) {
-      bufferRef.current = [];
-      stateRef.current = makeInitialState();
-      setActive(true);
-    }
-};
+      if (
+        buffer.length === KONAMI_CODE.length &&
+        buffer.every((k, i) => k === KONAMI_CODE[i])
+      ) {
+        bufferRef.current = [];
+        stateRef.current = makeInitialState();
+        setActive(true);
+      }
+    };
 
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, [active]);
 
   // --- Fermeture ---
@@ -91,36 +95,45 @@ export default function KonamiSpaceInvaders() {
     bufferRef.current = [];
   }, []);
 
-  // --- Contrôles du jeu (déplacement + tir manuel, sans limite) ---
+  // --- Redémarrage (sans fermer l'overlay) ---
+  const restart = useCallback(() => {
+    stateRef.current = makeInitialState();
+    forceRender((n) => n + 1);
+  }, []);
+
+  // --- Contrôles du jeu (déplacement + tir avec cooldown) ---
   useEffect(() => {
     if (!active) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
       const s = stateRef.current;
 
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         close();
         return;
       }
 
-      if (["ArrowLeft", "ArrowRight", " ", "Spacebar"].includes(e.key)) {
+      if (['ArrowLeft', 'ArrowRight', ' ', 'Spacebar'].includes(e.key)) {
         e.preventDefault();
       }
 
       if (s.gameOver) return;
 
-      if (e.key === "ArrowLeft") {
+      if (e.key === 'ArrowLeft') {
         s.playerX = Math.max(0, s.playerX - 1);
-      } else if (e.key === "ArrowRight") {
+      } else if (e.key === 'ArrowRight') {
         s.playerX = Math.min(COLS - 1, s.playerX + 1);
-      } else if (e.key === " " || e.key === "Spacebar") {
-        // Chaque appui tire une nouvelle balle, sans attendre que les autres touchent quoi que ce soit
-        s.bullets.push({ x: s.playerX, y: PLAYER_ROW - 1 });
+      } else if (e.key === ' ' || e.key === 'Spacebar') {
+        // Le cooldown ne bloque que le tir, jamais le déplacement
+        if (s.tick >= s.cooldownUntilTick) {
+          s.bullets.push({ x: s.playerX, y: PLAYER_ROW - 1 });
+          s.cooldownUntilTick = s.tick + FIRE_COOLDOWN_TICKS;
+        }
       }
     };
 
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, [active, close]);
 
   // --- Boucle de jeu ---
@@ -188,23 +201,23 @@ export default function KonamiSpaceInvaders() {
     if (!active) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const s = stateRef.current;
 
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, COLS * CELL, ROWS * CELL);
 
-    ctx.fillStyle = "#4ade80";
+    ctx.fillStyle = '#4ade80';
     s.invaders.forEach((inv) => {
       ctx.fillRect(inv.x * CELL + 2, inv.y * CELL + 2, CELL - 4, CELL - 4);
     });
 
-    ctx.fillStyle = "#facc15";
+    ctx.fillStyle = '#facc15';
     ctx.fillRect(s.playerX * CELL + 3, PLAYER_ROW * CELL + 3, CELL - 6, CELL - 6);
 
-    ctx.fillStyle = "#f87171";
+    ctx.fillStyle = '#f87171';
     s.bullets.forEach((bullet) => {
       ctx.fillRect(bullet.x * CELL + CELL / 2 - 1, bullet.y * CELL, 2, CELL);
     });
@@ -213,6 +226,7 @@ export default function KonamiSpaceInvaders() {
   if (!active) return null;
 
   const s = stateRef.current;
+  const canFire = s.tick >= s.cooldownUntilTick;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90">
@@ -224,8 +238,11 @@ export default function KonamiSpaceInvaders() {
         <X size={28} />
       </button>
 
-      <div className="mb-2 font-mono text-green-400 text-sm tracking-widest">
-        SCORE: {s.score}
+      <div className="mb-2 flex items-center gap-3 font-mono text-green-400 text-sm tracking-widest">
+        <span>SCORE: {s.score}</span>
+        <span className={canFire ? 'text-green-400' : 'text-green-700'}>
+          {canFire ? '● PRÊT' : '○ RECHARGE'}
+        </span>
       </div>
 
       <canvas
@@ -235,14 +252,21 @@ export default function KonamiSpaceInvaders() {
         style={{
           width: COLS * CELL * 2,
           height: ROWS * CELL * 2,
-          imageRendering: "pixelated",
-          border: "2px solid #4ade80",
+          imageRendering: 'pixelated',
+          border: '2px solid #4ade80',
         }}
       />
 
       {s.gameOver && (
-        <div className="mt-4 font-mono text-green-400 text-lg">
-          {s.won ? "GAGNÉ 👾" : "GAME OVER"} — Échap ou clique sur la croix pour fermer
+        <div className="mt-4 flex flex-col items-center gap-2 font-mono text-green-400 text-lg">
+          <span>{s.won ? 'GAGNÉ 👾' : 'GAME OVER'}</span>
+          <button
+            onClick={restart}
+            className="rounded border border-green-400 px-4 py-1 text-sm text-green-400 hover:bg-green-400 hover:text-black transition-colors"
+          >
+            Rejouer
+          </button>
+          <span className="text-xs text-green-600">Échap ou clique sur la croix pour fermer</span>
         </div>
       )}
 
