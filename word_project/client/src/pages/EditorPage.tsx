@@ -1,24 +1,16 @@
 import { useNavigate } from 'react-router-dom'
-import Editor from './Editor'
-import MusicPlayer from './MusicPlayer'
-import MobileMenu from './MobileMenu'
+import Editor from '../components/editor/Editor'
+import MusicPlayer from '../components/music/MusicPlayer'
+import MobileMenu from '../components/layout/MobileMenu'
 import { FileText, LogOut, User } from 'lucide-react'
-import { logout } from './authService'
+import { useLogout } from '../hooks/useLogout'
+import { initialsFromName } from '../utils/initials'
 
 export default function EditorPage() {
   const navigate = useNavigate()
+  const handleLogout = useLogout()
   const fullName = localStorage.getItem('fullName') || 'Invité'
-  const initials = fullName
-    .trim()
-    .split(/\s+/)
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase()
-
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
+  const initials = initialsFromName(fullName)
 
   return (
     <div className="page-shell">

@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Editor, useEditorState } from '@tiptap/react'
 import {
   Bold, Italic, Underline, List, ListOrdered, Heading1, Heading2,
   Strikethrough, AlignLeft, AlignCenter, AlignRight, Undo, Redo, Palette,
   Highlighter, Link as LinkIcon, Quote, Minus, Eraser
 } from 'lucide-react'
+import { useClickOutside } from '../../hooks/useClickOutside'
 
 type Props = {
   editor: Editor | null
@@ -45,7 +46,7 @@ const FONTS = [
 
 export default function Toolbar({ editor }: Props) {
   const [colorOpen, setColorOpen] = useState(false)
-  const colorRef = useRef<HTMLDivElement>(null)
+  const colorRef = useClickOutside<HTMLDivElement>(() => setColorOpen(false))
 
   const editorState = useEditorState({
     editor,
@@ -72,16 +73,6 @@ export default function Toolbar({ editor }: Props) {
       }
     },
   })
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (colorRef.current && !colorRef.current.contains(e.target as Node)) {
-        setColorOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
 
   if (!editor || !editorState) return null
 

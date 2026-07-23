@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginWithGoogle } from "./authService";
+import { loginWithGoogle } from "../../services/authService";
 
 const GIS_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 

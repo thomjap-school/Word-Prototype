@@ -1,7 +1,5 @@
-import { getToken } from "./authService";
 import type { JSONContent } from "@tiptap/react";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { API_URL, authHeaders, parseJsonResponse } from "./http";
 
 export interface DocumentSummary {
   id: number;
@@ -26,34 +24,18 @@ export interface DocumentOut {
   collaborators: Collaborator[];
 }
 
-function authHeaders() {
-  const token = getToken();
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
-}
-
-async function parseErrorOrJson(res: Response) {
-  const data = await res.json().catch(() => null);
-  if (!res.ok) {
-    throw new Error(data?.detail || "Une erreur est survenue");
-  }
-  return data;
-}
-
 export async function listDocuments(): Promise<DocumentSummary[]> {
   const res = await fetch(`${API_URL}/documents`, {
     headers: authHeaders(),
   });
-  return parseErrorOrJson(res);
+  return parseJsonResponse<DocumentSummary[]>(res);
 }
 
 export async function getDocument(id: number): Promise<DocumentOut> {
   const res = await fetch(`${API_URL}/documents/${id}`, {
     headers: authHeaders(),
   });
-  return parseErrorOrJson(res);
+  return parseJsonResponse<DocumentOut>(res);
 }
 
 export async function createDocument(title: string): Promise<DocumentOut> {
@@ -62,7 +44,7 @@ export async function createDocument(title: string): Promise<DocumentOut> {
     headers: authHeaders(),
     body: JSON.stringify({ title }),
   });
-  return parseErrorOrJson(res);
+  return parseJsonResponse<DocumentOut>(res);
 }
 
 export async function updateDocumentTitle(
@@ -74,7 +56,7 @@ export async function updateDocumentTitle(
     headers: authHeaders(),
     body: JSON.stringify({ title }),
   });
-  return parseErrorOrJson(res);
+  return parseJsonResponse<DocumentOut>(res);
 }
 
 export async function updateDocumentContent(
@@ -86,7 +68,7 @@ export async function updateDocumentContent(
     headers: authHeaders(),
     body: JSON.stringify({ content }),
   });
-  return parseErrorOrJson(res);
+  return parseJsonResponse<DocumentOut>(res);
 }
 
 export async function deleteDocument(id: number): Promise<void> {
@@ -94,10 +76,7 @@ export async function deleteDocument(id: number): Promise<void> {
     method: "DELETE",
     headers: authHeaders(),
   });
-  if (!res.ok) {
-    const data = await res.json().catch(() => null);
-    throw new Error(data?.detail || "Une erreur est survenue");
-  }
+  await parseJsonResponse(res);
 }
 
 export async function inviteCollaborator(
@@ -109,7 +88,7 @@ export async function inviteCollaborator(
     headers: authHeaders(),
     body: JSON.stringify({ email }),
   });
-  return parseErrorOrJson(res);
+  return parseJsonResponse<DocumentOut>(res);
 }
 
 export async function removeCollaborator(
@@ -120,7 +99,7 @@ export async function removeCollaborator(
     method: "DELETE",
     headers: authHeaders(),
   });
-  return parseErrorOrJson(res);
+  return parseJsonResponse<DocumentOut>(res);
 }
 
 export async function generateShareLink(id: number): Promise<string> {
@@ -128,7 +107,7 @@ export async function generateShareLink(id: number): Promise<string> {
     method: "POST",
     headers: authHeaders(),
   });
-  const data = await parseErrorOrJson(res);
+  const data = await parseJsonResponse<{ share_token: string }>(res);
   return `${window.location.origin}/join/${data.share_token}`;
 }
 
@@ -137,5 +116,5 @@ export async function joinViaShareLink(token: string): Promise<DocumentOut> {
     method: "POST",
     headers: authHeaders(),
   });
-  return parseErrorOrJson(res);
+  return parseJsonResponse<DocumentOut>(res);
 }

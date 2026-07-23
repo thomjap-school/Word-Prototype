@@ -5,7 +5,7 @@ import {
   removeCollaborator,
   generateShareLink,
   type Collaborator,
-} from "./documentService";
+} from "../../services/documentService";
 
 interface ShareDialogProps {
   documentId: number;

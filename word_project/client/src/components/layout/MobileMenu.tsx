@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Menu, X } from 'lucide-react'
-import MusicPlayer from './MusicPlayer'
+import MusicPlayer from '../music/MusicPlayer'
+import { useClickOutside } from '../../hooks/useClickOutside'
 
 type Props = {
   /** Actions propres à la page (liens de navigation, déconnexion...). */
@@ -16,17 +17,7 @@ type Props = {
  */
 export default function MobileMenu({ children }: Props) {
   const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  const ref = useClickOutside<HTMLDivElement>(() => setOpen(false))
 
   return (
     <div className="mobile-menu" ref={ref}>

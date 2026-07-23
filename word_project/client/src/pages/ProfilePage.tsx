@@ -1,9 +1,10 @@
 import { useEffect, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, User, Mail, Lock, LoaderCircle, Check, LogOut, Trash2 } from "lucide-react";
-import { getCurrentUser, updateProfile, changePassword, deleteAccount, logout, type UserOut } from "./authService";
-import MusicPlayer from "./MusicPlayer";
-import MobileMenu from "./MobileMenu";
+import { getCurrentUser, updateProfile, changePassword, deleteAccount, type UserOut } from "../services/authService";
+import MusicPlayer from "../components/music/MusicPlayer";
+import MobileMenu from "../components/layout/MobileMenu";
+import { useLogout } from "../hooks/useLogout";
 
 function getInitials(fullName: string | null, email: string) {
   if (fullName && fullName.trim()) {
@@ -15,6 +16,7 @@ function getInitials(fullName: string | null, email: string) {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const handleLogout = useLogout();
   const [user, setUser] = useState<UserOut | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
@@ -135,10 +137,7 @@ export default function ProfilePage() {
         <MobileMenu>
           <button
             className="mobile-menu-item mobile-menu-item--danger"
-            onClick={() => {
-              logout();
-              navigate("/login");
-            }}
+            onClick={handleLogout}
           >
             <LogOut size={15} />
             Déconnexion

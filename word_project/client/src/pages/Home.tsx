@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, FileText, Plus, Clock, ArrowRight, FileCheck, ClipboardList, AlignLeft, LoaderCircle, LogOut, Trash2, User } from 'lucide-react'
-import { logout } from './authService'
-import { listDocuments, createDocument, deleteDocument, type DocumentSummary } from './documentService'
-import MusicPlayer from './MusicPlayer'
-import MobileMenu from './MobileMenu'
-import HomeDecor from './HomeDecor'
-import KonamiSnake from './KonamiSnake'
-import KonamiSpaceInvaders from './Konamivader'
+import { listDocuments, createDocument, deleteDocument, type DocumentSummary } from '../services/documentService'
+import MusicPlayer from '../components/music/MusicPlayer'
+import MobileMenu from '../components/layout/MobileMenu'
+import HomeDecor from '../components/decor/HomeDecor'
+import KonamiSnake from '../components/decor/KonamiSnake'
+import KonamiSpaceInvaders from '../components/decor/KonamiSpaceInvaders'
+import { useLogout } from '../hooks/useLogout'
+import { initialsFromName } from '../utils/initials'
 
 const TEMPLATE_TITLES: Record<string, string> = {
   'Document vide': 'Document sans titre',
@@ -27,13 +28,9 @@ function formatDate(dateStr: string) {
 
 export default function Home() {
   const navigate = useNavigate()
+  const handleLogout = useLogout()
   const fullName = localStorage.getItem("fullName") || "Invité";
-  const initials = fullName
-    .trim()
-    .split(/\s+/)
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase();
+  const initials = initialsFromName(fullName);
   const [documents, setDocuments] = useState<DocumentSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -49,11 +46,6 @@ export default function Home() {
       .catch(() => setError('Impossible de charger les documents'))
       .finally(() => setLoading(false))
   }, [])
-
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
 
   const handleDelete = async (e: React.MouseEvent, docId: number) => {
     e.stopPropagation()

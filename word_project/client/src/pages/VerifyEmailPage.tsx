@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { LoaderCircle } from "lucide-react";
-import { verifyEmail } from "./authService";
+import { verifyEmail } from "../services/authService";
 
 type Status = "loading" | "success" | "error";
 

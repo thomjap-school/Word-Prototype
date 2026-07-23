@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Music2, Pause, Play, Search, SkipBack, SkipForward } from 'lucide-react'
 import { useMusicPlayer } from './MusicPlayerContext'
 import type { NcsTrack } from './ncsTracks'
+import { useClickOutside } from '../../hooks/useClickOutside'
 
 function formatTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return '0:00'
@@ -13,19 +14,9 @@ function formatTime(seconds: number): string {
 export default function MusicPlayer() {
   const { tracks, track, isPlaying, currentTime, duration, togglePlay, next, prev, seek, selectTrack } =
     useMusicPlayer()
-  const searchRef = useRef<HTMLDivElement>(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setSearchOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  const searchRef = useClickOutside<HTMLDivElement>(() => setSearchOpen(false))
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     seek(Number(e.target.value))

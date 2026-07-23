@@ -1,8 +1,8 @@
 import { useState, type SyntheticEvent } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { login, resendVerification, reactivateAccount, AccountPendingDeletionError } from "./authService";
-import GoogleSignInButton from "./GoogleSignInButton";
+import { login, resendVerification, reactivateAccount, AccountPendingDeletionError } from "../services/authService";
+import GoogleSignInButton from "../components/auth/GoogleSignInButton";
 
 const UNVERIFIED_MESSAGE = "Confirme ton email avant de te connecter";
 

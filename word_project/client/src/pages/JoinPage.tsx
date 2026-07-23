@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
-import { joinViaShareLink } from "./documentService";
+import { joinViaShareLink } from "../services/documentService";
 
 export default function JoinPage() {
   const navigate = useNavigate();

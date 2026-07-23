@@ -15,15 +15,15 @@ import CollaborationCaret from '@tiptap/extension-collaboration-caret'
 import * as Y from 'yjs'
 import { HocuspocusProvider } from '@hocuspocus/provider'
 import Toolbar from './Toolbar'
-import ShareDialog from './Sharedialog'
-import ExportImportMenu from './Exportimportmenu'
+import ShareDialog from './ShareDialog'
+import ExportImportMenu from './ExportImportMenu'
 import { ArrowLeft, LoaderCircle, Users } from 'lucide-react'
 import {
   getDocument,
   updateDocumentTitle,
   updateDocumentContent,
   type Collaborator,
-} from './documentService'
+} from '../../services/documentService'
 import { Markdown } from '@tiptap/markdown';
 
 

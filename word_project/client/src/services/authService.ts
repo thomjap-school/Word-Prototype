@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { API_URL, getToken, authHeaders, parseJsonResponse } from "./http";
 
 export interface UserOut {
   id: number;
@@ -29,6 +29,10 @@ export interface PasswordChangePayload {
   new_password: string;
 }
 
+interface TokenResponse {
+  access_token: string;
+}
+
 // Levée quand le backend répond 410 : compte marqué supprimé mais encore
 // dans le délai de grâce de 3 jours. Le frontend doit alors proposer la
 // réactivation plutôt qu'afficher une simple erreur de connexion.
@@ -39,17 +43,16 @@ export class AccountPendingDeletionError extends Error {
   }
 }
 
-async function parseErrorOrJson(res: Response) {
-  const data = await res.json().catch(() => null);
-  if (!res.ok) {
-    if (res.status === 410) {
-      throw new AccountPendingDeletionError(
-        data?.detail || "Ce compte est en attente de suppression"
-      );
-    }
-    throw new Error(data?.detail || "Une erreur est survenue");
+// Variante du parseur partagé qui intercepte le 410 (compte en attente de
+// suppression) avant l'erreur générique, pour permettre la réactivation.
+async function parseErrorOrJson<T>(res: Response): Promise<T> {
+  if (res.status === 410) {
+    const data = await res.json().catch(() => null);
+    throw new AccountPendingDeletionError(
+      data?.detail || "Ce compte est en attente de suppression"
+    );
   }
-  return data;
+  return parseJsonResponse<T>(res);
 }
 
 function storeFullName(user: UserOut) {
@@ -62,7 +65,7 @@ export async function login(payload: LoginPayload): Promise<string> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const data = await parseErrorOrJson(res);
+  const data = await parseErrorOrJson<TokenResponse>(res);
   localStorage.setItem("token", data.access_token);
   storeFullName(await getCurrentUser());
   return data.access_token;
@@ -76,7 +79,7 @@ export async function reactivateAccount(payload: LoginPayload): Promise<string> 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const data = await parseErrorOrJson(res);
+  const data = await parseErrorOrJson<TokenResponse>(res);
   localStorage.setItem("token", data.access_token);
   storeFullName(await getCurrentUser());
   return data.access_token;
@@ -88,7 +91,7 @@ export async function register(payload: RegisterPayload): Promise<UserOut> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const user = await parseErrorOrJson(res);
+  const user = await parseErrorOrJson<UserOut>(res);
   storeFullName(user);
   return user;
 }
@@ -99,7 +102,7 @@ export async function loginWithGoogle(credential: string): Promise<string> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ credential }),
   });
-  const data = await parseErrorOrJson(res);
+  const data = await parseErrorOrJson<TokenResponse>(res);
   localStorage.setItem("token", data.access_token);
   storeFullName(await getCurrentUser());
   return data.access_token;
@@ -107,7 +110,7 @@ export async function loginWithGoogle(credential: string): Promise<string> {
 
 export async function verifyEmail(token: string): Promise<{ message: string }> {
   const res = await fetch(`${API_URL}/auth/verify-email?token=${encodeURIComponent(token)}`);
-  return parseErrorOrJson(res);
+  return parseErrorOrJson<{ message: string }>(res);
 }
 
 export async function resendVerification(email: string): Promise<{ message: string }> {
@@ -116,21 +119,14 @@ export async function resendVerification(email: string): Promise<{ message: stri
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
   });
-  return parseErrorOrJson(res);
-}
-
-function authHeaders() {
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${getToken()}`,
-  };
+  return parseErrorOrJson<{ message: string }>(res);
 }
 
 export async function getCurrentUser(): Promise<UserOut> {
   const res = await fetch(`${API_URL}/auth/me`, {
     headers: authHeaders(),
   });
-  return parseErrorOrJson(res);
+  return parseErrorOrJson<UserOut>(res);
 }
 
 export async function updateProfile(payload: ProfileUpdatePayload): Promise<UserOut> {
@@ -139,7 +135,7 @@ export async function updateProfile(payload: ProfileUpdatePayload): Promise<User
     headers: authHeaders(),
     body: JSON.stringify(payload),
   });
-  const user = await parseErrorOrJson(res);
+  const user = await parseErrorOrJson<UserOut>(res);
   storeFullName(user);
   return user;
 }
@@ -150,10 +146,7 @@ export async function changePassword(payload: PasswordChangePayload): Promise<vo
     headers: authHeaders(),
     body: JSON.stringify(payload),
   });
-  if (!res.ok) {
-    const data = await res.json().catch(() => null);
-    throw new Error(data?.detail || "Une erreur est survenue");
-  }
+  await parseJsonResponse(res);
 }
 
 // Suppression douce du compte courant (délai de grâce de 3 jours,
@@ -164,20 +157,13 @@ export async function deleteAccount(): Promise<void> {
     method: "DELETE",
     headers: authHeaders(),
   });
-  if (!res.ok) {
-    const data = await res.json().catch(() => null);
-    throw new Error(data?.detail || "Une erreur est survenue");
-  }
+  await parseJsonResponse(res);
   logout();
 }
 
 export function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("fullName");
-}
-
-export function getToken(): string | null {
-  return localStorage.getItem("token");
 }
 
 export function isAuthenticated(): boolean {

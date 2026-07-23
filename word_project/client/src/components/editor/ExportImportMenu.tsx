@@ -10,7 +10,7 @@ import {
   exportToOdt,
   importDocx,
   importPdf,
-} from "./Exportimport";
+} from "./exportImport";
 
 interface ExportImportMenuProps {
   editor: Editor;

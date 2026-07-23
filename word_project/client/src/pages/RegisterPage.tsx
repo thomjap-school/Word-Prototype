@@ -1,8 +1,8 @@
 import { useState, type SyntheticEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { register } from "./authService";
-import GoogleSignInButton from "./GoogleSignInButton";
+import { register } from "../services/authService";
+import GoogleSignInButton from "../components/auth/GoogleSignInButton";
 
 export default function RegisterPage() {
   const navigate = useNavigate();

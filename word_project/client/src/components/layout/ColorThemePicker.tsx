@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Palette, RotateCcw } from "lucide-react";
-import { useColorTheme } from "./Usecolortheme";
+import { useColorTheme } from "../../hooks/useColorTheme";
 
 export default function ColorThemePicker() {
   const [open, setOpen] = useState(false);
