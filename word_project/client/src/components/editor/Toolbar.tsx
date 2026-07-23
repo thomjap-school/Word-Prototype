@@ -109,7 +109,7 @@ export default function Toolbar({ editor }: Props) {
   }
 
   const handleClearFormatting = () => {
-    withFallback(() => editor.chain().focus().clearNodes().unsetAllMarks().run())
+    editor.chain().focus().clearNodes().unsetAllMarks().run()
   }
 
   return (
@@ -158,7 +158,7 @@ export default function Toolbar({ editor }: Props) {
       </button>
       <button
         className={btn(editorState.isBlockquote)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleBlockquote().run())}
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
         title="Citation"
       >
         <Quote size={15} />
@@ -197,7 +197,7 @@ export default function Toolbar({ editor }: Props) {
       </button>
       <button
         className={btn(editorState.isHighlight)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleHighlight().run())}
+        onClick={() => editor.chain().focus().toggleHighlight().run()}
         title="Surligner"
       >
         <Highlighter size={15} />
@@ -265,7 +265,7 @@ export default function Toolbar({ editor }: Props) {
       </button>
       <button
         className={btn(editorState.isOrderedList)}
-        onClick={() => withFallback(() => editor.chain().focus().toggleOrderedList().run())}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
         title="Liste numérotée"
       >
         <ListOrdered size={15} />
