@@ -7,6 +7,7 @@ import MusicPlayer from './MusicPlayer'
 import MobileMenu from './MobileMenu'
 import HomeDecor from './HomeDecor'
 import KonamiSnake from './KonamiSnake'
+import KonamiSpaceInvaders from './Konamivader'
 
 const TEMPLATE_TITLES: Record<string, string> = {
   'Document vide': 'Document sans titre',
@@ -86,6 +87,7 @@ export default function Home() {
 
       <HomeDecor />
       <KonamiSnake />
+      <KonamiSpaceInvaders />
 
       {/* Header */}
       <header className="app-header app-header--between">
