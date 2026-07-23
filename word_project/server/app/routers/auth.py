@@ -158,6 +158,13 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     ).first()
     if not user or not user.verification_token_expires_at:
         raise HTTPException(status_code=400, detail="Lien de confirmation invalide")
+
+    # Idempotent : un deuxième appel avec le même token (double-clic, prefetch
+    # du client mail, StrictMode côté front...) doit re-confirmer le succès
+    # plutôt que renvoyer "invalide", puisque le token n'est plus effacé.
+    if user.is_verified:
+        return {"message": "Compte confirmé, tu peux te connecter."}
+
     expires_at = user.verification_token_expires_at
     if expires_at.tzinfo is None:
         expires_at = expires_at.replace(tzinfo=timezone.utc)
@@ -165,8 +172,6 @@ def verify_email(token: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Lien de confirmation expiré")
 
     user.is_verified = True
-    user.verification_token = None
-    user.verification_token_expires_at = None
     db.commit()
     return {"message": "Compte confirmé, tu peux te connecter."}
 
