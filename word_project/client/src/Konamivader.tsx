@@ -66,19 +66,20 @@ export default function KonamiSpaceInvaders() {
     if (active) return; // pas besoin d'écouter pendant que le jeu tourne
 
     const onKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
-      const buffer = [...bufferRef.current, key].slice(-KONAMI_CODE.length);
-      bufferRef.current = buffer;
+    const key = e.key.toLowerCase();
+    const buffer = [...bufferRef.current, key].slice(-KONAMI_CODE.length);
+    bufferRef.current = buffer;
+    console.log("touche:", e.key, "→", key, "| buffer:", buffer); // debug temporaire
 
-      if (
-        buffer.length === KONAMI_CODE.length &&
-        buffer.every((k, i) => k === KONAMI_CODE[i])
-      ) {
-        bufferRef.current = [];
-        stateRef.current = makeInitialState();
-        setActive(true);
-      }
-    };
+    if (
+      buffer.length === KONAMI_CODE.length &&
+      buffer.every((k, i) => k === KONAMI_CODE[i])
+    ) {
+      bufferRef.current = [];
+      stateRef.current = makeInitialState();
+      setActive(true);
+    }
+};
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
