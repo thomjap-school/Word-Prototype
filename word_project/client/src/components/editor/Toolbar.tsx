@@ -255,24 +255,6 @@ export default function Toolbar({ editor }: Props) {
 
       <div className="toolbar-divider" />
 
-      {/* Lists */}
-      <button
-        className={btn(editorState.isBulletList)}
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        title="Liste à puces"
-      >
-        <List size={15} />
-      </button>
-      <button
-        className={btn(editorState.isOrderedList)}
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        title="Liste numérotée"
-      >
-        <ListOrdered size={15} />
-      </button>
-
-      <div className="toolbar-divider" />
-
       {/* Alignment */}
       <button
         className={btn(editorState.isAlignLeft)}
