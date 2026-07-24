@@ -107,7 +107,7 @@ body {
    Lecteur de musique (header)
    ========================================================================== */
 .music-player {
-  @apply hidden sm:flex flex-col justify-center gap-1 bg-gray-100 border border-gray-200 rounded-2xl pl-1 pr-2 py-1 w-[300px];
+  @apply hidden sm:flex flex-col justify-center gap-1 bg-gray-100 border border-gray-200 rounded-2xl pl-1 pr-2 py-1 w-[344px];
 }
 .music-player-row {
   @apply flex items-center gap-0.5;
@@ -169,6 +169,15 @@ body {
   border-radius: 9999px;
   background: var(--color-primary);
   cursor: pointer;
+}
+
+/* Contrôle du volume : réutilise le style de piste/curseur de .music-player-range,
+   on ne surcharge donc que la largeur (défini après pour l'emporter sur w-full). */
+.music-volume {
+  @apply flex items-center gap-0.5 shrink-0;
+}
+.music-volume-range {
+  width: 3.25rem;
 }
 
 /* Recherche de titre */

@@ -12,16 +12,44 @@ function shuffle<T>(items: T[]): T[] {
   return result
 }
 
+// Volume/mute mémorisés entre les sessions. Les accès localStorage sont
+// encapsulés : ils peuvent lever (mode privé, quota) ou être indisponibles.
+const VOLUME_STORAGE_KEY = 'music-player-volume'
+const MUTED_STORAGE_KEY = 'music-player-muted'
+
+function loadStoredVolume(): number {
+  try {
+    const raw = localStorage.getItem(VOLUME_STORAGE_KEY)
+    if (raw === null) return 1
+    const v = Number(raw)
+    return isFinite(v) ? Math.min(1, Math.max(0, v)) : 1
+  } catch {
+    return 1
+  }
+}
+
+function loadStoredMuted(): boolean {
+  try {
+    return localStorage.getItem(MUTED_STORAGE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
 interface MusicPlayerContextValue {
   tracks: NcsTrack[]
   track: NcsTrack
   isPlaying: boolean
   currentTime: number
   duration: number
+  volume: number
+  muted: boolean
   togglePlay: () => void
   next: () => void
   prev: () => void
   seek: (value: number) => void
+  setVolume: (value: number) => void
+  toggleMute: () => void
   selectTrack: (t: NcsTrack) => void
 }
 
@@ -37,6 +65,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [volume, setVolumeState] = useState(loadStoredVolume)
+  const [muted, setMuted] = useState(loadStoredMuted)
 
   useEffect(() => {
     const audio = audioRef.current
@@ -55,6 +85,22 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     setDuration(0)
   }, [index])
 
+  // Répercute volume/mute sur l'élément <audio> (les propriétés survivent aux
+  // changements de src, inutile donc de dépendre de `index`) et les mémorise.
+  useEffect(() => {
+    const audio = audioRef.current
+    if (audio) {
+      audio.volume = volume
+      audio.muted = muted
+    }
+    try {
+      localStorage.setItem(VOLUME_STORAGE_KEY, String(volume))
+      localStorage.setItem(MUTED_STORAGE_KEY, muted ? '1' : '0')
+    } catch {
+      // Stockage indisponible : le réglage reste actif pour la session.
+    }
+  }, [volume, muted])
+
   const track = tracks[index]
 
   const value: MusicPlayerContextValue = {
@@ -63,6 +109,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     isPlaying,
     currentTime,
     duration,
+    volume,
+    muted,
     togglePlay: () => setIsPlaying((p) => !p),
     next: () => setIndex((i) => (i + 1) % tracks.length),
     prev: () => setIndex((i) => (i - 1 + tracks.length) % tracks.length),
@@ -70,6 +118,12 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       setCurrentTime(value)
       if (audioRef.current) audioRef.current.currentTime = value
     },
+    setVolume: (value) => {
+      setVolumeState(Math.min(1, Math.max(0, value)))
+      // Monter le volume au-dessus de zéro lève automatiquement le mute.
+      if (value > 0) setMuted(false)
+    },
+    toggleMute: () => setMuted((m) => !m),
     selectTrack: (t) => {
       const i = tracks.indexOf(t)
       if (i === -1) return

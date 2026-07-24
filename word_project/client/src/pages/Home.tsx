@@ -93,8 +93,6 @@ export default function Home() {
 
         <div className="home-header-center">
           <MusicPlayer />
-
-
         </div>
 
         <div className="home-header-actions">

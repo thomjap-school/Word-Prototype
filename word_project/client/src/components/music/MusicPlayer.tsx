@@ -1,5 +1,15 @@
 import { useState } from 'react'
-import { Music2, Pause, Play, Search, SkipBack, SkipForward } from 'lucide-react'
+import {
+  Music2,
+  Pause,
+  Play,
+  Search,
+  SkipBack,
+  SkipForward,
+  Volume1,
+  Volume2,
+  VolumeX,
+} from 'lucide-react'
 import { useMusicPlayer } from './MusicPlayerContext'
 import type { NcsTrack } from './ncsTracks'
 import { useClickOutside } from '../../hooks/useClickOutside'
@@ -12,8 +22,22 @@ function formatTime(seconds: number): string {
 }
 
 export default function MusicPlayer() {
-  const { tracks, track, isPlaying, currentTime, duration, togglePlay, next, prev, seek, selectTrack } =
-    useMusicPlayer()
+  const {
+    tracks,
+    track,
+    isPlaying,
+    currentTime,
+    duration,
+    volume,
+    muted,
+    togglePlay,
+    next,
+    prev,
+    seek,
+    setVolume,
+    toggleMute,
+    selectTrack,
+  } = useMusicPlayer()
   const [searchOpen, setSearchOpen] = useState(false)
   const [query, setQuery] = useState('')
   const searchRef = useClickOutside<HTMLDivElement>(() => setSearchOpen(false))
@@ -21,6 +45,10 @@ export default function MusicPlayer() {
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     seek(Number(e.target.value))
   }
+
+  // Le mute prime sur la valeur du curseur ; l'icône reflète le niveau réel.
+  const effectiveVolume = muted ? 0 : volume
+  const VolumeIcon = effectiveVolume === 0 ? VolumeX : effectiveVolume < 0.5 ? Volume1 : Volume2
 
   const handleSelect = (t: NcsTrack) => {
     selectTrack(t)
@@ -58,6 +86,27 @@ export default function MusicPlayer() {
           <span className="music-player-track">
             {track.title} <span className="music-player-artist">— {track.artist}</span>
           </span>
+        </div>
+
+        <div className="music-volume">
+          <button
+            onClick={toggleMute}
+            className="music-player-btn"
+            aria-label={muted ? 'Réactiver le son' : 'Couper le son'}
+            title={muted ? 'Réactiver le son' : 'Couper le son'}
+          >
+            <VolumeIcon size={13} />
+          </button>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={effectiveVolume}
+            onChange={(e) => setVolume(Number(e.target.value))}
+            className="music-player-range music-volume-range"
+            aria-label="Volume"
+          />
         </div>
 
         <div className="music-search-wrap" ref={searchRef}>
