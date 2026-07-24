@@ -94,14 +94,7 @@ export default function Home() {
         <div className="home-header-center">
           <MusicPlayer />
 
-          <div className="search-box">
-            <Search size={14} className="text-gray-400 shrink-0" />
-            <input
-              type="text"
-              placeholder="Rechercher un document..."
-              className="search-input"
-            />
-          </div>
+
         </div>
 
         <div className="home-header-actions">
