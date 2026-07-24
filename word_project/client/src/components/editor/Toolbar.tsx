@@ -156,6 +156,13 @@ export default function Toolbar({ editor }: Props) {
       >
         <Heading2 size={15} />
       </button>
+      <button
+        className={btn(editorState.isBlockquote)}
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        title="Citation"
+      >
+        <Quote size={15} />
+      </button>
 
       <div className="toolbar-divider" />
 

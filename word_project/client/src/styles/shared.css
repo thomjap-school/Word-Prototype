@@ -484,6 +484,12 @@ body {
 .editor-body .tiptap p {
   @apply mb-3;
 }
+.editor-body .tiptap blockquote {
+  @apply border-l-4 border-gray-300 pl-4 my-4 italic text-gray-600;
+}
+.editor-body .tiptap blockquote p {
+  @apply mb-0;
+}
 
 .editor-loading {
   @apply flex items-center justify-center min-h-screen gap-2 text-sm text-gray-400;
