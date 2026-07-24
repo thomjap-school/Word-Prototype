@@ -476,10 +476,10 @@ body {
   line-height: 1.75;
 }
 .editor-body .tiptap h1 {
-  @apply mb-4 mt-2;
+  @apply text-3xl font-bold leading-tight mb-4 mt-2;
 }
 .editor-body .tiptap h2 {
-  @apply mb-3 mt-6;
+  @apply text-2xl font-semibold leading-snug mb-3 mt-6;
 }
 .editor-body .tiptap p {
   @apply mb-3;
